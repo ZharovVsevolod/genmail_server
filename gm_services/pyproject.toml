@@ -5,6 +5,7 @@ description = "United services connection part of genmail on server"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "langchain==0.3.27",
     "omegaconf>=2.3.0",
     "pydantic>=2.11.9",
     "python-dotenv>=1.1.1",
