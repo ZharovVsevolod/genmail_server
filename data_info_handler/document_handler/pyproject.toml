@@ -1,0 +1,7 @@
+[project]
+name = "genmail-server-documnet-handler"
+version = "0.1.0"
+description = "Document Handler part of genmail on server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []

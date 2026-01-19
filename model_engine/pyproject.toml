@@ -1,0 +1,7 @@
+[project]
+name = "genmail-server-model-engine"
+version = "0.1.0"
+description = "Module engine part of genmail on server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []

@@ -1,0 +1,7 @@
+[project]
+name = "genmail-server-retriever"
+version = "0.1.0"
+description = "Retriever part of genmail on server"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []

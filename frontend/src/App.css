@@ -1,0 +1,980 @@
+:root {
+  --text-color: rgb(3, 3, 3);
+  --background-color: rgb(255, 255, 255);
+  --input-padding: 10px;
+  --button-padding: 10px 20px;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans Pro", sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-font-smoothing: auto;
+}
+
+.chat-background {
+  background-color: #f0f0f0;
+  min-height: 100vh;
+}
+
+.input-form {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* box-shadow: 0 -2px 5px rgba(0,0,0,0.1); */
+  background: #fff;
+  transition: top 0.25s ease, transform 0.25s ease;
+}
+
+.input-form--bottom {
+  top: auto;
+  bottom: 0;
+  transform: none;
+}
+
+.input-form--center {
+  top: auto;
+  bottom: calc(50vh - 18px);
+  transform: none;
+}
+
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-sizing: border-box;
+  resize: none;
+  overflow-y: auto;
+  max-height: 100px; /* Примерно 2 строки (line-height: 1.6) */
+  line-height: 1.6;
+  field-sizing: content; /* Автоматическое расширение по высоте до max-height */
+}
+
+textarea {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-sizing: border-box;
+  
+  resize: none;
+  overflow-y: auto;
+  max-height: 100px;
+  line-height: 1.6;
+  field-sizing: content;
+  font-family: "Source Sans Pro", sans-serif;
+}
+
+button {
+  padding: var(--button-padding);
+}
+
+/* .chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 6rem 1.5rem 10rem;
+  box-sizing: border-box;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.messages-container {
+  overflow-y: auto;
+  max-height: calc(100vh - 3% - 100px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 100px;
+  right: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.message {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+} */
+ .chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 6rem 5rem 10rem;
+  box-sizing: border-box;
+}
+
+.messages-container {
+  overflow-y: auto;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  /* padding: 0 5rem; */
+  box-sizing: border-box;
+}
+
+.message {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.message-bubble {
+  color: #222;
+  padding: 12px 20px;
+  margin: 8px 0;
+  max-width: 60%;
+  word-break: break-word;
+  display: inline-block;
+  align-self: flex-start;
+  margin-left: 20%;
+  position: relative;
+}
+
+/* User message style - gray background with dark gray border, no shadow */
+.message-bubble.message-user {
+  background: #f8f8fc;
+  border: 1px solid #f0f0f7;
+  border-radius: 20px;
+  box-shadow: none;
+  align-self: flex-end;
+  /* margin-left: auto; */
+  margin-right: 20%;
+  /* width: 40%; */
+  max-width: 40%;
+}
+
+/* Bot message style - no edges/borders, no shadow */
+.message-bubble.message-bot {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding-left: 0;
+  padding-right: 0;
+  /* width: 60%; */
+  max-width: 50%;
+}
+
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.message-header strong {
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.message-time {
+  font-size: 0.9rem;
+  color: #888;
+  font-weight: 400;
+}
+.download-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  text-align: right;
+}
+
+.actions-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.download-btn, .rate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 40px;
+  height: 40px;
+}
+
+/* Кнопка скачивания */
+.download-btn {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+}
+
+.download-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.download-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Общие стили для кнопок оценки */
+.rate-btn {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+}
+
+.rate-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+/* Лайк при нажатии становится светло-зеленой */
+.like-btn.rated {
+  background: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+/* Дизлайк при нажатии становится светло-красной */
+.dislike-btn.rated {
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+.rate-btn img {
+  width: 20px;
+  height: 20px;
+  transition: filter 0.2s;
+}
+
+/* Иконка лайка - черная по умолчанию, белая при активном состоянии */
+.like-btn img {
+  filter: brightness(0); /* Черная иконка */
+}
+
+.like-btn.rated img {
+  filter: brightness(0) invert(1); /* Белая иконка на зеленом фоне */
+}
+
+/* Иконка дизлайка - перевернутая черная по умолчанию, белая при активном состоянии */
+.dislike-btn img {
+  transform: rotate(180deg); /* Переворачиваем иконку лайка */
+  filter: brightness(0); /* Черная иконка */
+}
+
+.dislike-btn.rated img {
+  transform: rotate(180deg);
+  filter: brightness(0) invert(1); /* Белая иконка на красном фоне */
+}
+
+.download-button {
+  margin-left: 8px;   /* small gap between buttons */
+  background-color: rgb(0, 255, 50);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Make the download PNG appear white by using CSS filters.
+   Works best for mostly-monochrome icons. If the PNG is multicolor,
+   converting to SVG or providing a white variant is recommended. */
+/* .download-button.icon-btn img {
+  filter: brightness(0) invert(1);
+} */
+
+/* .download-button:disabled img {
+  filter: brightness(0) invert(1);
+  opacity: 0.45;
+} */
+
+.download-button:disabled {
+  background-color: rgb(127, 127, 127);
+  cursor: not-allowed;
+}
+
+.upload-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* keep original upload icon colors */
+.upload-button.icon-btn img {
+  filter: none;
+}
+
+/* Place upload icon inside the input field on the left */
+.input-with-prompts .upload-button {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+/* Prompts panel styles */
+.input-with-prompts {
+  position: relative;
+  display: flex;
+  flex: 0 0 60%;
+  min-width: 160px;
+  max-width: 100%;
+}
+
+/* Extra padding so text does not overlap icons */
+.input-with-prompts textarea {
+  padding-left: 44px;
+  padding-right: 44px;
+}
+
+/* Greeting text above the input field, aligned to the left side of the chat */
+.greeting-text {
+  position: absolute;
+  left: 20%;
+  bottom: calc(100% + 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.greeting-line1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.greeting-line2 {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+/* Onboarding cards - cloud style, arranged in a row, centered */
+.onboarding-cards {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 24px);
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.onboarding-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.onboarding-card-content {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.onboarding-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.onboarding-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.onboarding-card-body {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.onboarding-card-image {
+  flex-shrink: 0;
+  width: 53px;
+  height: 53px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onboarding-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.prompts-panel {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: calc(100% - 36px); 
+  /* max-width: none; */
+  background: white;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  padding: 12px;
+  border-radius: 8px;
+  z-index: 40;
+}
+
+.prompts-panel--bottom {
+  bottom: auto;
+  top: 100%;
+  margin-top: 8px;
+}
+
+.prompts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.prompts-add {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.prompts-add input {
+  width: 95%;
+  flex: none;
+  box-sizing: border-box;
+  resize: none;
+  padding: 8px 12px;
+  outline: none;
+  border-color: #35356e;
+  box-shadow: 0 0 0 3px rgb(53, 53, 110);
+}
+
+.prompts-add input:focus {
+  outline: none;
+  border-color: #35356e;
+  box-shadow: 0 0 0 3px rgb(53, 53, 110);
+}
+
+.prompts-list {
+  max-height: 240px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prompt-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.prompt-text.truncated {
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.prompts-empty {
+  color: #666;
+  padding: 8px;
+}
+
+/* Icon buttons inside prompts */
+.icon-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn img {
+  width: 27px;
+  height: 27px;
+}
+
+.add-btn img {
+  width: 30px;
+  height: 30px;
+}
+
+/* Upload button styled as plain icon (no background or extra chrome) */
+.upload-button.icon-btn {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  width: auto;
+  height: auto;
+  padding: 0;
+}
+
+.upload-button.icon-btn img {
+  filter: none;
+  width: 24px;
+  height: 24px;
+}
+
+.prompt-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prompt-left-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.prompt-right-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.apply-btn {
+  background: #35356e;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.apply-btn:hover {
+  background: #5959B9;
+}
+
+.input-with-prompts button[type="submit"] {
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+.input-with-prompts button[type="submit"]:hover {
+  background: transparent;
+}
+
+.input-with-prompts button[type="submit"] img {
+  width: 24px;
+  height: 24px;
+  filter: none;
+}
+
+/* Copy button on the left corner of message bubble */
+.copy-btn {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.copy-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Insert button (text) shown when selecting message text */
+.insert-btn {
+  position: absolute;
+  left: 12px; /* fallback */
+  top: 12px; /* fallback */
+  background: #35356e;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.insert-btn:hover {
+  background: #5959B9;
+}
+
+/* Menu button (round top-right) */
+.menu-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 60;
+}
+
+.menu-btn:hover { background: transparent; }
+.menu-icon { width: 16px; height: 16px; }
+
+/* Hidden menu strip on the left edge, similar style to chats menu */
+.menu-strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4%;
+  background: #FBFBFE;
+  border-right: 1px solid #EEEEF5;
+  cursor: pointer;
+  z-index: 50; /* behind the menu button, in front of content */
+}
+
+/* Chats slide-in panel */
+.chats-menu-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  /* background: rgba(0,0,0,0.32); */
+  z-index: 70;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.chats-menu {
+  width: 288px;
+  max-width: 15%;
+  height: 100%;
+  background: #FBFBFE;
+  /* box-shadow: -6px 0 18px rgba(0,0,0,0.12); */
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: auto;
+  border-right: 1px solid #EEEEF5;
+  display: flex;
+  flex-direction: column;
+}
+
+.chats-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.close-menu {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.chats-list { margin-top: 12px; display:flex; flex-direction:column; gap:8px; flex: 1; }
+.chat-row { padding: 10px; border-radius: 6px; background:#fafafa; cursor: pointer; }
+.chat-row-selected { padding: 10px; border-radius: 6px; background:#f0f0ff; cursor: pointer; }
+.chat-row:hover { background: #f0f0ff }
+.chat-title { font-weight: 600 }
+.chat-id { font-size: 0.85rem; color: #888 }
+
+/* Create chat row */
+.create-chat-row { 
+  display:flex; 
+  gap:8px; 
+  align-items:center; 
+  padding:24px; 
+}
+
+.create-chat-input { 
+  flex:1; 
+  padding:8px 10px; 
+  border-radius:8px; 
+  border:1px solid #e6e6f0 
+}
+
+.create-chat-btn { 
+  display:inline-flex; 
+  align-items:center; 
+  justify-content: center; /* Добавляем для центрирования содержимого */
+  gap:8px; 
+  background:#2C5DE5; 
+  border: none; /* Убираем границу, если нужна синяя кнопка */
+  padding:8px 12px; 
+  border-radius:12px; 
+  cursor:pointer;
+  width: 228px; /* Фиксированная ширина */
+  height: 36px; /* Фиксированная высота */
+  font-size: 14px;
+  box-sizing: border-box; /* Чтобы padding учитывался в размерах */
+}
+
+.create-chat-btn img { 
+  width:20px; 
+  height:20px;
+  filter: brightness(0) invert(1); /* Делаем иконку белой */
+}
+
+.create-text { 
+  font-weight:500;
+  color: white; /* Белый текст */
+}
+
+.chat-main { flex:1; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.chat-title { flex: 1; cursor: pointer; }
+.chat-actions { display:flex; gap:6px; align-items:center; position: relative; }
+.chat-edit-wrapper { position: relative; }
+.chat-edit-input { padding:6px 8px; border-radius:6px; border:1px solid #ddd }
+.icon-btn { background:transparent; border:none; padding:6px; cursor:pointer; display:inline-flex; align-items:center }
+.icon-btn img { width:20px; height:20px }
+.edit-chat-btn { background: transparent; border: none; padding: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.edit-chat-btn img { width: 3px; height: 13px; }
+.save-btn, .cancel-btn { padding:6px 10px; border-radius:6px; border:1px solid #ddd; background:#fff; cursor:pointer }
+
+/* Chat context menu - cloud style */
+.chat-context-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  min-width: 150px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-menu-item {
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  transition: background 0.2s;
+}
+
+.context-menu-item:hover {
+  background: #f5f5f5;
+}
+
+/* Info button in menu footer */
+.chats-menu-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.info-btn-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.info-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.info-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.info-text {
+  color: #3E3E59;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+/* Info button when menu is hidden */
+.info-btn-hidden-wrapper {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  width: 4%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 55;
+}
+
+.info-btn-hidden {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.info-btn-hidden img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Info dropdown menu - cloud style */
+.info-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  min-width: 180px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-dropdown--hidden {
+  bottom: auto;
+  top: 100%;
+  left: 0;
+  margin-bottom: 0;
+  margin-top: 8px;
+}
+
+.info-dropdown-item {
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  transition: background 0.2s;
+}
+
+.info-dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+/* ------------------------------------------------------ */
+/* Here is completely new part, */
+/* not forget to include it when migrate to new .css file */
+.login-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.login-modal {
+  background: white;
+  padding: 24px;
+  width: 320px;
+  border-radius: 8px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.login-error {
+  color: red;
+  margin-bottom: 12px;
+}
+
+.login-submit {
+  width: 100%;
+}
