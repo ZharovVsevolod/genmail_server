@@ -1,0 +1,51 @@
+system:
+  silent: True
+  logging_file: null
+  # LEVELS: 10 - DEB, 20 - INF, 30 - WARN, 40 - ERR, 50 - CRITERR
+  logging_level: 20
+  device: mps
+  server: False
+
+
+services:
+  vectorbase:
+    base_url: "https://localhost:9200" # For server: localhost -> es01
+    certs_path: "./data/certs/ca.crt"
+    history_index: email-history
+    docs_index: langchain-index
+    documentview_index: doc-view
+    user_chats: user-chats
+    prompt_library: prompt-library
+  
+  graphbase:
+    base_url: "bolt://localhost:7687" # For server: localhost -> neo4j
+  
+  llm_engine:
+    base_url: "http://vllm_c:8000/v1" # For server: localhost -> vllm_c
+  
+  tablebase:
+    base_url: "localhost" # For server: localhost -> postgres
+
+
+docs:
+  main_dir: data/
+  mail_dir_path: mails/
+  final_name: result/result.docx
+
+
+models:
+  embeddings: FRIDA
+  llm: "qwen3:8b"
+  thinking_mode: True
+  tools: True
+  prompts_path: prompts/
+  language: en # ru
+
+
+api:
+  port: ${oc.env:VITE_BACKEND_PORT}
+  host: "0.0.0.0"
+
+
+web:
+  run_name: ${oc.env:VITE_CHAT_NAME}
