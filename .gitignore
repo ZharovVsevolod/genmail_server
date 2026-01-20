@@ -1,5 +1,8 @@
 # Development
 dev/
+.vscode/
+test.py
+__pycache__/
 
 # Enviroment
 .venv/

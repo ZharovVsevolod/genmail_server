@@ -5,8 +5,15 @@ description = "United services connection part of genmail on server"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "langchain==0.3.27",
+    "langchain>=0.3.27,<1.0.0",
+    "langchain-community>=0.3.29,<0.4.0",
+    "langchain-openai>=0.3.33,<0.4.0",
+    "markdown>=3.9",
     "omegaconf>=2.3.0",
+    "opensearch-py>=3.1.0",
+    "pandas>=2.3.2",
+    "psycopg2-binary>=2.9.11",
     "pydantic>=2.11.9",
+    "python-docx>=1.2.0",
     "python-dotenv>=1.1.1",
 ]
