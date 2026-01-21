@@ -2,11 +2,15 @@ import os
 from opensearchpy import OpenSearch
 from langchain_community.vectorstores import OpenSearchVectorSearch
 
-from ...config import Settings
+from ...neural.models.embeddings import EmbeddingsCall
+from ...config import Settings, EMBEDDINGS_MODEL_TYPE
 
 
 class OpenSearchConnection:
-    def __init__(self):
+    def __init__(
+        self, 
+        embeddings_model_name: EMBEDDINGS_MODEL_TYPE | None = None
+    ) -> None:
         # Compatibility layer
         address = Settings.services.vectorbase.base_url.split("//")[-1]
         [host, port] = address.split(":")
@@ -16,7 +20,6 @@ class OpenSearchConnection:
             os.environ["OPENSEARCH_LOGIN"], 
             os.environ["OPENSEARCH_PASSWORD"]
         )
-        auth = ("admin", "15Xtkjdtr!")
 
         self.client = OpenSearch(
             hosts = available_hosts,
@@ -34,8 +37,12 @@ class OpenSearchConnection:
         # 1) make custom OpenSearchVectorSearch with __init__ to be rewritten;
         # 2) here, is OpenSearchConnection, make connection again with the same credits.
         # We choose 2nd option
+        if embeddings_model_name is None:
+            embeddings_model_name = Settings.models.embeddings
+        embeddings = EmbeddingsCall(model_name = embeddings_model_name)
+
         self.vectorstore = OpenSearchVectorSearch(
             opensearch_url = Settings.services.vectorbase.base_url,
             index_name = Settings.services.vectorbase.docs_index,
-            embedding_function = ...
+            embedding_function = embeddings
         )

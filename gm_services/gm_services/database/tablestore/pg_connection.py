@@ -5,7 +5,7 @@ from .table_schemas.password import PASSWORDTABLE
 from .table_schemas.user import USER
 from .table_schemas.user_position import USERPOSITIONTABLE
 from .table_schemas.position import POSITIONTABLE
-from ....config import Settings
+from ...config import Settings
 
 from .table_schemas.password import PassTable
 from .table_schemas.user import User

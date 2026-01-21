@@ -1,6 +1,5 @@
 import ast
 
-from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_openai import ChatOpenAI
 
 from langchain_core.messages import HumanMessage, AIMessage
@@ -8,14 +7,13 @@ from langchain_core.output_parsers.json import JsonOutputParser
 from langchain_core.output_parsers import StrOutputParser
 
 from .tools import MainToolkit
-from ..common import cut_thinking_part_of_message
-from ..config import Settings
+from ...common import cut_thinking_part_of_message
+from ...config import Settings
 
 from langchain_core.messages import BaseMessage
 from langchain_core.runnables import RunnableConfig
 from .tools.tool_interface import TOOL_NAMES
-from ..config import (
-    EMBEDDINGS_MODEL_TYPE,
+from ...config import (
     LLM_MODEL_TYPE,
     DEVICE_TYPE,
     LLM_ANSWER_PARSER_TYPE
@@ -30,17 +28,15 @@ ERROR_MESSAGE = """Извините, что-то пошло не так.
 Пожалуйста, переформулируйте Ваш ответ или перезагрузите страницу."""
 
 
-class MLModelShell:
+class LLModelShell:
     def __init__(
         self,
-        embeddings_name: EMBEDDINGS_MODEL_TYPE,
         llm_name: LLM_MODEL_TYPE,
         device: DEVICE_TYPE | None = None
     ) -> None:
         if device is None:
             device = Settings.system.device
 
-        self.embeddings = self._init_embeddings(embeddings_name, device)
         if Settings.system.server:
             self.llm = self._init_llm_model(llm_name)
         else:
@@ -73,7 +69,7 @@ class MLModelShell:
 
     def _match_model_path(
         self, 
-        model_name: LLM_MODEL_TYPE | EMBEDDINGS_MODEL_TYPE
+        model_name: LLM_MODEL_TYPE
     ) -> str:
         match model_name:
             # LLM_MODEL_TYPE
@@ -88,29 +84,8 @@ class MLModelShell:
             
             case "qwen3:4b":
                 model_path = "Qwen/Qwen3-4B"
-            
-            # EMBEDDINGS_MODEL_TYPE
-            case "FRIDA":
-                model_path = "ai-forever/FRIDA"
-            
-            case "e5-large":
-                model_path = "intfloat/multilingual-e5-large-instruct"
         
         return model_path
-
-
-    def _init_embeddings(
-        self, 
-        embeddings_name: EMBEDDINGS_MODEL_TYPE,
-        device: DEVICE_TYPE
-    ) -> HuggingFaceEmbeddings:
-        """Get an embeddings model"""
-        embeddings_path = self._match_model_path(embeddings_name)
-        embeddings = HuggingFaceEmbeddings(
-            model_name = embeddings_path, 
-            model_kwargs = {"device": device}
-        )
-        return embeddings
     
 
     def _init_toolkit(self):
@@ -150,10 +125,6 @@ class MLModelShell:
                 answer = parser.invoke(answer)
             
         return answer
-
-
-    def get_emdeddings(self) -> HuggingFaceEmbeddings:
-        return self.embeddings
     
 
     def llm_answer(

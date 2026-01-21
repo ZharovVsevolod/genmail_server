@@ -3,8 +3,8 @@ from .table_schemas.password import PASSWORDTABLE
 from .table_schemas.position import POSITIONTABLE
 from .table_schemas.user_position import USERPOSITIONTABLE
 
-from ....common import pd_load_from_csv
-from ....head import HEAD
+from ...common import pd_load_from_csv
+from .pg_connection import PGHandler
 
 from .table_schemas.base import BaseTable
 
@@ -12,9 +12,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def create_table(table: BaseTable, path_to_file: str) -> None:
+def create_table(
+    table: BaseTable, 
+    path_to_file: str,
+    tablestore: PGHandler | None = None
+) -> None:
+    if tablestore is None:
+        tablestore = PGHandler()
+
     # Create table
-    HEAD.tablestore.create_table(table)
+    tablestore.create_table(table)
 
     # Load data from file
     values_to_insert = pd_load_from_csv(path_to_file, index = False)
@@ -22,7 +29,7 @@ def create_table(table: BaseTable, path_to_file: str) -> None:
     values_to_insert = values_to_insert.to_dict(orient = "records")
 
     # Insert values
-    HEAD.tablestore.insert_values_to_table(table, values_to_insert)
+    tablestore.insert_values_to_table(table, values_to_insert)
 
 
 def create_users_table(path_to_file: str) -> bool:

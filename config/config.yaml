@@ -38,7 +38,7 @@ models:
   llm: "qwen3:8b"
   thinking_mode: True
   tools: True
-  prompts_path: prompts/
+  prompts_path: config/prompts/
   language: en # ru
 
 

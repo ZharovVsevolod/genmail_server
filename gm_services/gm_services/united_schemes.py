@@ -1,9 +1,10 @@
 from pydantic import BaseModel
 from typing import Literal
 
-# ----------
+# ------------------------
+# Mail generation scenario
+# ------------------------
 # Extraction
-# ----------
 class Page(BaseModel):
     number: int
     text: str
@@ -17,9 +18,7 @@ class ExtractedDocument(BaseModel):
         return result
 
 
-# -------------
 # Understanding
-# -------------
 DOCUMENT_TYPE = Literal["inner", "outer"]
 
 class DocumentView(BaseModel):
@@ -54,9 +53,7 @@ class DocumentView(BaseModel):
         return result
 
 
-# ----------
 # Generation
-# ----------
 class BaseGenerationBody(BaseModel):
     letter_body: str
     history: list

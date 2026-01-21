@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 HISTORY_MESSAGE_TYPE = Literal["dict", "langchain", "api"]
 
 
-class OpenSearchChatHandle(OpenSearchConnection):
+class OpenSearchChatHandler(OpenSearchConnection):
     def __init__(self):
         super().__init__()
 

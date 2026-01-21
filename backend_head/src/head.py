@@ -6,19 +6,19 @@ from .mail.extract import Extractor
 from .mail.understand import PromptRunner
 from .mail.generate import Chat
 from .mail.formalize import DocumentFormalizer
-from .neural.model import MLModelShell
-from .neural.tools import MainToolkit, ToolCallingRunnable
-from .services.databases.vectorstore import ElasticHandler
-from .services.databases.vectorstore.history import get_session_history
-from .services.databases.graphstore import Neo4jHandler
-from .services.databases.tablestore import PGHandler
-from .common import load_prompt, cut_thinking_part_of_message, unmark
-from .config import Settings
+from gm_services.gm_services.neural.llm import LLModelShell
+from gm_services.gm_services.neural.llm.tools import MainToolkit, ToolCallingRunnable
+from .db_handle.osdb_chat import OpenSearchChatHandler
+from .db_handle.history import get_session_history
+# Here is a place for future GraphStore
+from gm_services.gm_services.database.tablestore import PGHandler
+from gm_services.gm_services.common import load_prompt, cut_thinking_part_of_message, unmark
+from gm_services.gm_services.config import Settings
 
-from .mail.schemas_mail import DocumentView, ExtractedDocument
-from .services.databases.vectorstore.elastic_connection import HISTORY_MESSAGE_TYPE
-from .services.databases.tablestore.table_schemas.user import User
-from .neural.tools.tool_interface import TOOL_NAMES
+from gm_services.gm_services.united_schemes import DocumentView, ExtractedDocument
+from .db_handle.osdb_chat import HISTORY_MESSAGE_TYPE
+from gm_services.gm_services.database.tablestore.table_schemas.user import User
+from gm_services.gm_services.neural.llm.tools.tool_interface import TOOL_NAMES
 from langchain_core.messages import BaseMessage
 from typing import Literal, Any
 
@@ -35,19 +35,19 @@ RUNNALE_TYPES = Literal["default", "mail"]
 class Head:
     def __init__(self):
         # LLM
-        self.model = MLModelShell(
-            embeddings_name=Settings.models.embeddings,
-            llm_name=Settings.models.llm,
-            device=Settings.system.device
+        self.model = LLModelShell(
+            llm_name = Settings.models.llm,
+            device = Settings.system.device
         )
         logger.info("Connection established with LLM")
 
         # Services
-        self.vector_base = ElasticHandler(model_shell=self.model)
-        self.graph_base = Neo4jHandler(driver = "langchain", model = self.model)
+        self.vector_base = OpenSearchChatHandler()
+        self.graph_base = None
         self.tablestore = PGHandler()
 
         # Inner modules
+        # TODO
         self.extractor = Extractor()
         self.promptrunner = PromptRunner(model=self.model)
         self.chat = Chat(model=self.model, vector_base=self.vector_base)
@@ -56,10 +56,10 @@ class Head:
             graph = self.graph_base,
             tablestore = self.tablestore
         )
-        logger.info("Mail Head loaded")
 
         # Tools
         self.toolkit = MainToolkit()
+        logger.info("Main Backend Head loaded")
 
 
     # --------------
@@ -111,19 +111,24 @@ class Head:
         """Update parameter in history.additional_kwargs"""
         self.vector_base.update_langchain_message(message_id, parameter_name, parameter_value)
     
+    # TODO
+    # This will be another module, not self.vectorbase
 
     def add_extracted_info(self, session_id: str, extracted: DocumentView) -> None:
-        self.vector_base.add_extracted_info(session_id, extracted)
+        # self.vector_base.add_extracted_info(session_id, extracted)
+        pass
     
     def get_extracted_info(self, session_id: str) -> DocumentView | None:
         """Get the saved DocumentView by session_id
 
         Return None if there is no matching DocumentView
         """
-        return self.vector_base.get_extracted_info(session_id)
+        # return self.vector_base.get_extracted_info(session_id)
+        pass
     
     def delete_extracted_info(self, session_id: str) -> None:
-        self.vector_base.delete_extracted_info(session_id)
+        # self.vector_base.delete_extracted_info(session_id)
+        pass
     
 
     def add_chat_id(
