@@ -3,7 +3,7 @@ load_dotenv()
 
 import uvicorn
 
-from src.api.api_activation import app
+from backend_head.src.api.api_main import app
 from gm_services.gm_services.config import Settings
 
 

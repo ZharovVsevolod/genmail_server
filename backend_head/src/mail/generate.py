@@ -2,12 +2,12 @@ from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
-from .schemas_mail import BaseGenerationBody
-from ..config import Settings
+from gm_services.gm_services.united_schemes import BaseGenerationBody
+from gm_services.gm_services.config import Settings
 
 from langchain_core.messages import BaseMessage
-from ..neural import MLModelShell
-from .schemas_mail import DocumentView
+from gm_services.gm_services.neural.llm import LLModelShell
+from gm_services.gm_services.united_schemes import DocumentView
 from ..services.databases.vectorstore.elastic_connection import ElasticHandler
 from typing import List, Literal
 
@@ -68,7 +68,7 @@ def database_history_convertion(history: list[HistoryMessage]) -> list[BaseMessa
 class Chat:
     def __init__(
         self, 
-        model: MLModelShell,
+        model: LLModelShell,
         vector_base: ElasticHandler, 
     ):
         self.model = model

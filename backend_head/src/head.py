@@ -2,15 +2,14 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-from .mail.extract import Extractor
+from .mail.extract import 
 from .mail.understand import PromptRunner
-from .mail.generate import Chat
+from .mail.generate import 
 from .mail.formalize import DocumentFormalizer
 from gm_services.gm_services.neural.llm import LLModelShell
 from gm_services.gm_services.neural.llm.tools import MainToolkit, ToolCallingRunnable
 from .db_handle.osdb_chat import OpenSearchChatHandler
 from .db_handle.history import get_session_history
-# Here is a place for future GraphStore
 from gm_services.gm_services.database.tablestore import PGHandler
 from gm_services.gm_services.common import load_prompt, cut_thinking_part_of_message, unmark
 from gm_services.gm_services.config import Settings
@@ -41,19 +40,17 @@ class Head:
         )
         logger.info("Connection established with LLM")
 
-        # Services
+        # Databases
         self.vector_base = OpenSearchChatHandler()
-        self.graph_base = None
         self.tablestore = PGHandler()
 
         # Inner modules
         # TODO
         self.extractor = Extractor()
-        self.promptrunner = PromptRunner(model=self.model)
+        self.promptrunner = PromptRunner(model = self.model)
         self.chat = Chat(model=self.model, vector_base=self.vector_base)
         self.formalizer = DocumentFormalizer(
             model = self.model, 
-            graph = self.graph_base,
             tablestore = self.tablestore
         )
 
@@ -74,7 +71,7 @@ class Head:
 
 
     def similarity_search(self, query: str) -> str:
-        return self.chat.similarity_search(query)
+
     
 
     def get_message_by_id(
@@ -116,7 +113,7 @@ class Head:
 
     def add_extracted_info(self, session_id: str, extracted: DocumentView) -> None:
         # self.vector_base.add_extracted_info(session_id, extracted)
-        pass
+
     
     def get_extracted_info(self, session_id: str) -> DocumentView | None:
         """Get the saved DocumentView by session_id
@@ -124,11 +121,11 @@ class Head:
         Return None if there is no matching DocumentView
         """
         # return self.vector_base.get_extracted_info(session_id)
-        pass
+
     
     def delete_extracted_info(self, session_id: str) -> None:
         # self.vector_base.delete_extracted_info(session_id)
-        pass
+
     
 
     def add_chat_id(
@@ -215,7 +212,10 @@ class Head:
     
 
     def llm_get_info_from_text(self, extracted: list[ExtractedDocument]) -> list[DocumentView]:
-        result = self.promptrunner.run(contexts=extracted)
+        result = self.promptrunner.run(
+            task = "TextAnalyze",
+            document_context = extracted
+        )
         logger.info("LLM get some information from text")
         return result
 

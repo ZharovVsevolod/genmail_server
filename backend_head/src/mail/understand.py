@@ -1,34 +1,49 @@
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from .schemas_mail import DocumentView
-from ..common import load_prompt
-from ..config import Settings
+from gm_services.gm_services.united_schemes import DocumentView
+from gm_services.gm_services.common import load_prompt
+from gm_services.gm_services.config import Settings
 
-from .schemas_mail import ExtractedDocument
-from ..neural.model import MLModelShell
-from typing import List
+from gm_services.gm_services.united_schemes import ExtractedDocument
+from gm_services.gm_services.neural.llm import LLModelShell
+from typing import List, Literal
 
 import logging
 logger = logging.getLogger(__name__)
 
 
+AVAILABLE_TASKS = Literal[
+    "TextAnalyze"
+]
+
+
 class PromptRunner:
     """
-    Универсальный раннер: грузит .md-промпт, подставляет поля и текст пользователя,
-    вызывает shell.llm_answer, возвращает dict с JSON-результатом.
+    Universal runner for LLM. Depenends of task, load needed .md prompt from 
+    prompt storage, parse additional information and user's phrase.
     """
 
     def __init__(
         self, 
-        model: MLModelShell, 
-        task: str = "text_analisys.md"
+        model: LLModelShell,
+        prompt_storage: str = Settings.models.full_prompts_path
     ):
         self.model = model
-        prompt_path = Settings.models.full_prompts_path + task
-        self.system_prompt = load_prompt(prompt_path)
+        self.prompt_storage = prompt_storage
 
 
-    def run(self,
+    def _get_prompt_from_task(self, task: AVAILABLE_TASKS) -> str:
+        match task:
+            case "TextAnalyze":
+                prompt_path = self.prompt_storage + "text_analisys.md"
+                system_prompt = load_prompt(prompt_path)
+        
+        return system_prompt
+    
+
+    def text_analize(
+        self,
+        system_prompt: str,
         contexts: List[ExtractedDocument]
     ) -> List[DocumentView]:
         required_keys = ["doc_type", "theme", "summary", "author", "number", "date"]
@@ -43,7 +58,7 @@ class PromptRunner:
 
         context_data = "\n\n".join([doc.to_str() for doc in contexts])
 
-        messages = [SystemMessage(self.system_prompt), HumanMessage(context_data)]
+        messages = [SystemMessage(system_prompt), HumanMessage(context_data)]
         response = self.model.llm_answer(
             messages=messages,
             llm_answer_parser="json"
@@ -72,3 +87,43 @@ class PromptRunner:
             )
         except Exception as e:
             logger.exception("Error creating DocumentView: %s", e)
+    
+
+    def run(
+        self,
+        task: AVAILABLE_TASKS,
+        document_context: List[ExtractedDocument] | None = None
+    ) -> str | List[DocumentView]:
+        """
+        Run LLM with system prompt of current task
+
+        Tasks
+        -----
+        - `TextAnalyze`: Get some information from given document
+        (like date, number, author, main theme of text, etc.)
+        
+            
+        Arguments
+        ---------
+        task: str
+            What task to perfom
+        
+        document_context: List[ExtractedDocument] | None = None
+            Parameter for `TextAnalyze`: text that LLM will search in
+
+        
+        Returns
+        -------
+        result: str | List[DocumentView]
+            LLM's formatted answer. Answer's type depends on task
+        """
+        system_prompt = self._get_prompt_from_task(task)
+
+        match task:
+            case "TextAnalyze":
+                result = self.text_analize(
+                    system_prompt = system_prompt,
+                    contexts = document_context
+                )
+        
+        return result

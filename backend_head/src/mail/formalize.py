@@ -5,18 +5,16 @@ from docx.shared import Pt
 from datetime import datetime
 from random import randint
 
-from ..neural import MLModelShell
-from ..services.databases.graphstore import Neo4jHandler
-from ..services.databases.graphstore.commands import get_person_pos_and_org_command
-from ..services.databases.tablestore import PGHandler
-from ..services.databases.tablestore.table_schemas.user import User
-from .schemas_mail import DocumentView
-from ..common import (
+from gm_services.gm_services.neural.llm import LLModelShell
+from gm_services.gm_services.database.tablestore import PGHandler
+from gm_services.gm_services.database.tablestore.table_schemas.user import User
+from gm_services.gm_services.united_schemes import DocumentView
+from gm_services.gm_services.common import (
     generate_hex, 
     load_prompt, 
     simple_langchain_messages
 )
-from ..config import Settings
+from gm_services.gm_services.config import Settings
 
 from docx.document import Document as DocumentObject
 from typing import Literal
@@ -34,8 +32,7 @@ OUTER_DOCUMENT_BLANK = Settings.docs.full_mail_path + "blanks/outer.docx"
 class DocumentFormalizer:
     def __init__(
         self, 
-        model: MLModelShell,
-        graph: Neo4jHandler,
+        model: LLModelShell,
         tablestore: PGHandler,
         path_to_save_folder: str | None = None
     ):
@@ -47,7 +44,6 @@ class DocumentFormalizer:
 
         # Links to outer modules
         self.model = model
-        self.graph = graph
         self.tablestore = tablestore
     
 
@@ -71,26 +67,6 @@ class DocumentFormalizer:
         system = load_prompt("nominative_form.md", default_path = True)
         messages = simple_langchain_messages(system, document_info.author)
         person_nominative = self.model.llm_answer(messages, llm_answer_parser = "json")
-
-        ## Graph query
-        logger.info("Search for person in Graph Database")
-        graph_command = get_person_pos_and_org_command(person_nominative)
-        graph_answer = self.graph.execute(graph_command)
-
-        if graph_answer == []:
-            found_position = " "
-            found_organization = " "
-        
-        else:
-            graph_answer: dict = graph_answer[0]
-            if graph_answer.get("pos.name"):
-                found_position = graph_answer.get("pos.name")
-            else:
-                found_position = " "
-            if graph_answer.get("org.name"):
-                found_organization = graph_answer.get("org.name")
-            else:
-                found_organization = " "
         
         ## Dative form
         logger.info("Generate Dative form")
@@ -98,8 +74,10 @@ class DocumentFormalizer:
         human = f"{person_nominative["name"]}"
         human += f"{person_nominative["surname"]}"
         human += f"{person_nominative["patronymic"]}, "
-        human += f"{found_position}, "
-        human += f"{found_organization}"
+        # ------------------------
+        human += f"<ПОЗИЦИЯ>, "
+        human += f"<ОРГАНИЗАЦИЯ>"
+        # ------------------------
         messages = simple_langchain_messages(system, human)
         dative_form = self.model.llm_answer(messages, llm_answer_parser = "json")
 
