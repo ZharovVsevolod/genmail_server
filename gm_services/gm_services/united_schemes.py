@@ -5,6 +5,11 @@ from typing import Literal
 # Mail generation scenario
 # ------------------------
 # Extraction
+
+PARSING_METHODS = Literal[
+    "ocr", "docx", "none"
+]  # none is for no parsing (of text, for example)
+
 class Page(BaseModel):
     number: int
     text: str
