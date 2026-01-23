@@ -16,15 +16,15 @@ from .events_typing import (
     EVENT_AUTH_SUCCESS
 )
 from ....head import HEAD
-from gm_services.gm_services.common import generate_hex, to_json_safe
-from gm_services.gm_services.neural.llm.chain_config import make_config_for_chain
-from gm_services.gm_services.neural.llm.custom_parsers import chain_stream_parser, is_think_continue
-from gm_services.gm_services.config import Settings
+from gm_services.common import generate_hex, to_json_safe
+from gm_services.neural.llm.chain_config import make_config_for_chain
+from gm_services.neural.llm.custom_parsers import chain_stream_parser, is_think_continue
+from gm_services.config import Settings
 
 from fastapi import WebSocket
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from .events_typing import API_MESSAGE_TYPE
-from gm_services.gm_services.united_schemes import DocumentView
+from gm_services.united_schemes import DocumentView
 
 import logging
 logger = logging.getLogger(__name__)

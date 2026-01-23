@@ -1,7 +1,7 @@
 import uvicorn
 
 from src.api import app
-from gm_services.gm_services.config import Settings
+from gm_services.config import Settings
 
 
 if __name__ == "__main__":

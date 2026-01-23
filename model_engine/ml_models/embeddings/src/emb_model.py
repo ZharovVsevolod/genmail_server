@@ -1,8 +1,8 @@
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
-from gm_services.gm_services.config import Settings
+from gm_services.config import Settings
 
-from gm_services.gm_services.config import EMBEDDINGS_MODEL_TYPE, DEVICE_TYPE
+from gm_services.config import EMBEDDINGS_MODEL_TYPE, DEVICE_TYPE
 
 import logging
 logger = logging.getLogger(__name__)

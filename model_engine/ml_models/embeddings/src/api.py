@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from .emb_model import initialize_all_models
 
-from gm_services.gm_services.config import EMBEDDINGS_MODEL_TYPE
+from gm_services.config import EMBEDDINGS_MODEL_TYPE
 
 import logging
 logger = logging.getLogger(__name__)

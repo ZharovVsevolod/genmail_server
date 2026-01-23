@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi import APIRouter, UploadFile, File
 from fastapi import APIRouter
 
-from gm_services.gm_services.config import Settings
+from gm_services.config import Settings
 
 
 file_router = APIRouter()

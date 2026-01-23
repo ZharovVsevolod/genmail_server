@@ -5,16 +5,16 @@ from docx.shared import Pt
 from datetime import datetime
 from random import randint
 
-from gm_services.gm_services.neural.llm import LLModelShell
-from gm_services.gm_services.database.tablestore import PGHandler
-from gm_services.gm_services.database.tablestore.table_schemas.user import User
-from gm_services.gm_services.united_schemes import DocumentView
-from gm_services.gm_services.common import (
+from gm_services.neural.llm import LLModelShell
+from gm_services.database.tablestore import PGHandler
+from gm_services.database.tablestore.table_schemas.user import User
+from gm_services.united_schemes import DocumentView
+from gm_services.common import (
     generate_hex, 
     load_prompt, 
     simple_langchain_messages
 )
-from gm_services.gm_services.config import Settings
+from gm_services.config import Settings
 
 from docx.document import Document as DocumentObject
 from typing import Literal

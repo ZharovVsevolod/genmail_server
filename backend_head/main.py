@@ -4,7 +4,7 @@ load_dotenv()
 import uvicorn
 
 from backend_head.src.api.api_main import app
-from gm_services.gm_services.config import Settings
+from gm_services.config import Settings
 
 
 if __name__ == "__main__":
