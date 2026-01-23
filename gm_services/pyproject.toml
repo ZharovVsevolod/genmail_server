@@ -1,5 +1,5 @@
 [project]
-name = "genmail-server-services"
+name = "gm_services"
 version = "0.1.0"
 description = "United services connection part of genmail on server"
 readme = "README.md"
