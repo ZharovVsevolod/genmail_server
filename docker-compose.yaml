@@ -123,6 +123,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  
+  document_handler:
+    container_name: document_handler
+    ports:
+      - "8000:8000"
+    build:
+      context: .
+      dockerfile: ./data_info_handler/document_handler/Dockerfile
+    restart: always
 
 
 volumes:

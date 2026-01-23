@@ -3,8 +3,8 @@ from time import time
 from langchain_core.messages import message_to_dict
 
 from .langchain_chat_history import OpenSearchChatMessageHistory
-from gm_services.gm_services.database.vectorstore import OpenSearchConnection
-from gm_services.gm_services.config import Settings
+from gm_services.database.vectorstore import OpenSearchConnection
+from gm_services.config import Settings
 
 from langchain_core.messages import BaseMessage
 

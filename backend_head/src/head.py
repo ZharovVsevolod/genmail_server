@@ -6,18 +6,18 @@ from .mail.extract import
 from .mail.understand import PromptRunner
 from .mail.generate import 
 from .mail.formalize import DocumentFormalizer
-from gm_services.gm_services.neural.llm import LLModelShell
-from gm_services.gm_services.neural.llm.tools import MainToolkit, ToolCallingRunnable
+from gm_services.neural.llm import LLModelShell
+from gm_services.neural.llm.tools import MainToolkit, ToolCallingRunnable
 from .db_handle.osdb_chat import OpenSearchChatHandler
 from .db_handle.history import get_session_history
-from gm_services.gm_services.database.tablestore import PGHandler
-from gm_services.gm_services.common import load_prompt, cut_thinking_part_of_message, unmark
-from gm_services.gm_services.config import Settings
+from gm_services.database.tablestore import PGHandler
+from gm_services.common import load_prompt, cut_thinking_part_of_message, unmark
+from gm_services.config import Settings
 
-from gm_services.gm_services.united_schemes import DocumentView, ExtractedDocument
+from gm_services.united_schemes import DocumentView, ExtractedDocument
 from .db_handle.osdb_chat import HISTORY_MESSAGE_TYPE
-from gm_services.gm_services.database.tablestore.table_schemas.user import User
-from gm_services.gm_services.neural.llm.tools.tool_interface import TOOL_NAMES
+from gm_services.database.tablestore.table_schemas.user import User
+from gm_services.neural.llm.tools.tool_interface import TOOL_NAMES
 from langchain_core.messages import BaseMessage
 from typing import Literal, Any
 

@@ -1,9 +1,9 @@
 import json
 from langchain_core.messages import messages_from_dict
 
-from gm_services.gm_services.database.vectorstore import OpenSearchConnection
-from gm_services.gm_services.common import cut_thinking_part_of_message, generate_hex
-from gm_services.gm_services.config import Settings
+from gm_services.database.vectorstore import OpenSearchConnection
+from gm_services.common import cut_thinking_part_of_message, generate_hex
+from gm_services.config import Settings
 
 from langchain_core.messages import BaseMessage
 from typing import Any, Literal
