@@ -5,7 +5,7 @@ from marker.converters.pdf import PdfConverter
 from marker.models import create_model_dict
 from marker.output import text_from_rendered
 
-from gm_services.united_schemes import ExtractedDocument, Page
+from gm_services.schemas.extraction import ExtractedDocument, Page
 from gm_services.common import load_prompt, load_docx_text, delete_file
 
 from gm_services.config import DEVICE_TYPE

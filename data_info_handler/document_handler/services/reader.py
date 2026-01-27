@@ -2,8 +2,7 @@ from io import BytesIO
 import docx
 
 from gm_services.config import Settings
-from gm_services.united_schemes import PARSING_METHODS
-from gm_services.united_schemes import Page
+from gm_services.schemas.extraction import PARSING_METHODS, Page
 from marker.converters.pdf import PdfConverter
 from marker.models import create_model_dict
 from marker.output import text_from_rendered

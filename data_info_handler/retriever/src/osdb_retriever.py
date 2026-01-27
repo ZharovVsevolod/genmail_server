@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from gm_services.database.vectorstore import OpenSearchConnection
 from gm_services.common import generate_hex
-from gm_services.united_schemes import DocumentView
+from gm_services.schemas.understanding import DocumentView
 from gm_services.config import Settings
 
 from langchain_core.vectorstores import VectorStoreRetriever

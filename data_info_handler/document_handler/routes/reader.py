@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, HTTPException
 
-from gm_services.united_schemes import ExtractedDocument, PARSING_METHODS
+from gm_services.schemas.extraction import ExtractedDocument, PARSING_METHODS
 
 from data_info_handler.document_handler.services.reader import Reader
 from pathlib import Path
