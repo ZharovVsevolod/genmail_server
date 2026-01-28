@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from hashlib import md5
 from data_info_handler.document_handler.models.data import Data
 from data_info_handler.document_handler.models.files import File

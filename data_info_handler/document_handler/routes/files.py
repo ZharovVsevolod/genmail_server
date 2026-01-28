@@ -1,6 +1,5 @@
-from fastapi import APIRouter, UploadFile, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, HTTPException
 from gm_services.schemas.document_handler import UploadResponse
-from data_info_handler.document_handler.models.base import pg_handler
 from data_info_handler.document_handler.models import dbutils
 
 router = APIRouter()

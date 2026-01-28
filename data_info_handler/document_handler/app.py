@@ -1,8 +1,5 @@
 import logging
 from fastapi import FastAPI
-from data_info_handler.document_handler.models import data as _
-from data_info_handler.document_handler.models import files as _
-from data_info_handler.document_handler.models import transcriptions as _
 from data_info_handler.document_handler.routes import reader, files
 from data_info_handler.document_handler.models.base import pg_handler
 from contextlib import asynccontextmanager
