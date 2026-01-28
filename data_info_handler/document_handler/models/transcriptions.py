@@ -14,7 +14,9 @@ class Transcription(Base):
         nullable=False, primary_key=True, default=uuid4
     )
     status: Mapped[str]
-    md5sum: Mapped[bytes] = mapped_column(ForeignKey("data.md5sum"), index=True)
+    md5sum: Mapped[bytes] = mapped_column(
+        ForeignKey("data.md5sum", ondelete="CASCADE"), index=True
+    )
     method = Mapped[str]
     meta: Mapped[dict] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(

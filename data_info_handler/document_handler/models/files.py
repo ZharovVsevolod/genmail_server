@@ -14,7 +14,8 @@ class File(Base):
     user_id: Mapped[str | None] = mapped_column(index=True)
     name: Mapped[str | None] = mapped_column(nullable=False)
     md5sum: Mapped[bytes | None] = mapped_column(
-        ForeignKey("data.md5sum"), nullable=True
+        ForeignKey("data.md5sum", ondelete="RESTRICT"),
+        nullable=True,
     )
     meta: Mapped[dict] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(
