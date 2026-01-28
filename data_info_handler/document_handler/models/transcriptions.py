@@ -5,11 +5,14 @@ import uuid
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
 from sqlalchemy import func
+from uuid import uuid4
 
 
 class Transcription(Base):
     __tablename__ = "transcriptions"
-    id: Mapped[uuid.UUID] = mapped_column(nullable=False, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(
+        nullable=False, primary_key=True, default=uuid4
+    )
     status: Mapped[str]
     md5sum: Mapped[bytes] = mapped_column(ForeignKey("data.md5sum"), index=True)
     method = Mapped[str]
