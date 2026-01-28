@@ -131,6 +131,10 @@ services:
     build:
       context: .
       dockerfile: ./data_info_handler/document_handler/Dockerfile
+    environment:
+      - POSTGRES_URI="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB_NAME}"
+    depends_on:
+      - postgres
     restart: always
 
 
