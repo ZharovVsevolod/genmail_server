@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Creating tables")
-    pg_handler.Base.metadata.drop_all(pg_handler.engine)
     pg_handler.create_tables()
     logger.info("Created tables")
     yield
