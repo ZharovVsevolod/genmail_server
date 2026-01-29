@@ -102,7 +102,7 @@ async def get_file(user_id: str, id: UUID, body: FilterMetadataRequest | None = 
 
 
 @router.delete("/", status_code=200)
-async def delete_dile(user_id: str, id: UUID):
+async def delete_file(user_id: str, id: UUID):
     if not dbutils.does_user_id_own_file_id(user_id, id):
         raise HTTPException(403, "Forbidden")
 
