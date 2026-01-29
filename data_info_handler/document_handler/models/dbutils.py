@@ -1,11 +1,12 @@
 from hashlib import md5
 from data_info_handler.document_handler.models.data import Data
 from data_info_handler.document_handler.models.files import File
+from data_info_handler.document_handler.models.transcriptions import Transcription
 from uuid import UUID
 from datetime import datetime
 from data_info_handler.document_handler.models.base import pg_handler
 from sqlalchemy import select, func
-from gm_services.schemas.document_handler import UploadResponse
+from gm_services.schemas.document_handler import UploadResponse, TranscriptionStatusEnum
 
 
 def add_data(file_data: bytes, content_type: str) -> bytes:
@@ -88,3 +89,65 @@ def delete_file_id(file_id: UUID) -> bool:
             return False
         existing_file.deleted_at = func.now()
     return True
+
+
+def create_transcription_task(id: UUID, md5sum: bytes):
+    with pg_handler.get_session() as session:
+        t = Transcription(
+            id=id, status=TranscriptionStatusEnum.IN_QUEUE.value, md5sum=md5sum
+        )
+        session.add(t)
+
+
+def set_transcription_task_status(id: UUID, new_status: str) -> bool:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        if existing_task is None:
+            return False
+        existing_task.status = new_status
+    return True
+
+
+def get_transcription_task_status(id: UUID) -> str | None:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        return None if existing_task is None else existing_task.status
+
+
+def get_transcription_content_type_by_md5sum(md5sum: bytes) -> str | None:
+    with pg_handler.get_session() as session:
+        existing_data = session.get(Data, md5sum)
+        return existing_data.file_type if existing_data else None
+
+
+def set_transcription_task_content(id: UUID, content: dict) -> bool:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        if existing_task is None:
+            return False
+        existing_task.content = content
+        return True
+
+
+def get_transcription_task_updated_at(id: UUID) -> datetime | None:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        return existing_task.updated_at if existing_task else None
+
+
+def get_transcription_task_method(id: UUID) -> str | None:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        return existing_task.method if existing_task else None
+
+
+def get_transcription_task_meta(id: UUID) -> dict:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        return existing_task.meta if existing_task else dict()
+
+
+def get_transcription_task_content(id: UUID) -> dict | None:
+    with pg_handler.get_session() as session:
+        existing_task = session.get(Transcription, id)
+        return existing_task.content if existing_task else None
