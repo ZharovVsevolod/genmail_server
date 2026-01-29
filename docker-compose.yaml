@@ -124,6 +124,9 @@ services:
       postgres:
         condition: service_healthy
   
+  # ----------
+  # Document handler
+  # ----------
   document_handler:
     container_name: document_handler
     ports:
