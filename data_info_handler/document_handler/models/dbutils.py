@@ -4,7 +4,8 @@ from data_info_handler.document_handler.models.files import File
 from uuid import UUID
 from datetime import datetime
 from data_info_handler.document_handler.models.base import pg_handler
-from sqlalchemy import select
+from sqlalchemy import select, func
+from gm_services.schemas.document_handler import UploadResponse
 
 
 def add_data(file_data: bytes, content_type: str) -> bytes:
@@ -38,23 +39,52 @@ def add_file(user_id: str, filename: str, md5sum: bytes) -> tuple[UUID, datetime
 def does_user_id_own_file_id(user_id: str, file_id: UUID) -> bool:
     with pg_handler.get_session() as session:
         existing_file = session.get(File, file_id)
-        return existing_file.user_id == user_id if existing_file else False
+        return (
+            existing_file.deleted_at is None and existing_file.user_id == user_id
+            if existing_file
+            else False
+        )
 
 
 def does_user_id_own_md5sum(user_id: str, md5sum: bytes) -> bool:
     with pg_handler.get_session() as session:
         stmt = select(File).where(File.user_id == user_id and File.md5sum == md5sum)
         existing_file = session.execute(stmt).scalar_one_or_none()
-        return existing_file is not None
+        return existing_file is not None and existing_file.deleted_at is None
 
 
 def get_md5sum_by_id(file_id: UUID) -> bytes | None:
     with pg_handler.get_session() as session:
         existing_file = session.get(File, file_id)
-        return existing_file.md5sum if existing_file else None
+        return (
+            existing_file.md5sum
+            if existing_file and existing_file.deleted_at is None
+            else None
+        )
 
 
 def get_data_by_md5sum(md5sum: bytes) -> bytes | None:
     with pg_handler.get_session() as session:
         existing_data = session.get(Data, md5sum)
         return existing_data.data if existing_data else None
+
+
+def get_upload_response_by_id(file_id: UUID) -> UploadResponse | None:
+    with pg_handler.get_session() as session:
+        existing_file = session.get(File, file_id)
+        return (
+            UploadResponse.model_validate(
+                existing_file, from_attributes=True, extra="ignore"
+            )
+            if existing_file and existing_file.deleted_at is None
+            else None
+        )
+
+
+def delete_file_id(file_id: UUID) -> bool:
+    with pg_handler.get_session() as session:
+        existing_file = session.get(File, file_id)
+        if existing_file is None or existing_file.deleted_at is not None:
+            return False
+        existing_file.deleted_at = func.now()
+    return True

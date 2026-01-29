@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Response
-from gm_services.schemas.document_handler import UploadResponse
+from gm_services.schemas.document_handler import UploadResponse, FilterMetadataRequest
 from data_info_handler.document_handler.models import dbutils
 from logging import getLogger
 from uuid import UUID
@@ -26,7 +26,7 @@ async def upload_file(user_id: str, file: UploadFile) -> UploadResponse:
         user_id=user_id,
         name=file.filename,
         md5sum=md5sum.hex(),
-        metadata={},
+        meta={},
         created_at=created_at,
         deleted_at=None,
     )
@@ -53,7 +53,7 @@ async def get_data(user_id: str, id: UUID | None = None, md5sum: str | None = No
             logger.error(
                 "Can't find data for id=%s, md5sum=%s", id, md5sum_from_db.hex()
             )
-            raise HTTPException(500, "No data for this file")
+            raise HTTPException(500, "Can't get data for this file")
 
         return Response(data, media_type="binary/octet-stream")
 
@@ -61,8 +61,8 @@ async def get_data(user_id: str, id: UUID | None = None, md5sum: str | None = No
     try:
         md5_bytes = bytes.fromhex(md5sum)
     except ValueError as e:
-        logger.exception(e)
         raise HTTPException(400, "Invalid md5 hex") from e
+
     if len(md5_bytes) != 16:
         raise HTTPException(400, "Invalid md5 hex")
 
@@ -76,6 +76,34 @@ async def get_data(user_id: str, id: UUID | None = None, md5sum: str | None = No
             user_id,
             md5sum,
         )
-        raise HTTPException(500, "No data with such md5")
+        raise HTTPException(500, "Can't retrieve file data")
 
     return Response(data, media_type="binary/octet-stream")
+
+
+@router.get("/", response_model=UploadResponse)
+async def get_file(user_id: str, id: UUID, body: FilterMetadataRequest | None = None):
+    if not dbutils.does_user_id_own_file_id(user_id, id):
+        raise HTTPException(403, "Forbidden")
+
+    file_upload_response = dbutils.get_upload_response_by_id(id)
+    if file_upload_response is None:
+        logger.error("User %s owns file %s, but can't retrieve file", user_id, id)
+        raise HTTPException(500, "Can't get file info")
+
+    if body is not None:
+        file_upload_response.meta = {
+            key: file_upload_response.meta[key]
+            for key in body.meta
+            if key in file_upload_response.meta
+        }
+
+    return file_upload_response
+
+
+@router.delete("/", status_code=200)
+async def delete_dile(user_id: str, id: UUID):
+    if not dbutils.does_user_id_own_file_id(user_id, id):
+        raise HTTPException(403, "Forbidden")
+
+    dbutils.delete_file_id(id)
