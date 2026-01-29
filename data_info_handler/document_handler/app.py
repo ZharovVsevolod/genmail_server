@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI
-from data_info_handler.document_handler.routes import reader, files
+from data_info_handler.document_handler.routes import reader, files, transcribe
 from data_info_handler.document_handler.models.base import pg_handler
 from contextlib import asynccontextmanager
 
@@ -20,3 +20,4 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(reader.router, prefix="/reader")
 app.include_router(files.router, prefix="/files")
+app.include_router(transcribe.router, prefix="/transcribe")
