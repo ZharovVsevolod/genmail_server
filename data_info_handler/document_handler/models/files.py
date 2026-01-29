@@ -1,5 +1,5 @@
 from sqlalchemy.orm import mapped_column, Mapped
-from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy import ForeignKey, DateTime, Index
 from data_info_handler.document_handler.models.base import Base
 import uuid
 from sqlalchemy.dialects.postgresql import JSONB
@@ -30,3 +30,5 @@ class File(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+
+    __table_args__ = (Index("user_id__md5sum", "user_id", "md5sum"),)
