@@ -17,8 +17,9 @@ class Transcription(Base):
     md5sum: Mapped[bytes] = mapped_column(
         ForeignKey("data.md5sum", ondelete="CASCADE"), index=True
     )
-    method = Mapped[str]
-    meta: Mapped[dict] = mapped_column(JSONB)
+    method: Mapped[str | None]
+    content: Mapped[dict] = mapped_column(JSONB, default="{}")
+    meta: Mapped[dict] = mapped_column(JSONB, default="{}")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
