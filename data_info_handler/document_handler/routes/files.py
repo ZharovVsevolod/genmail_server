@@ -81,7 +81,7 @@ async def get_data(user_id: str, id: UUID | None = None, md5sum: str | None = No
     return Response(data, media_type="binary/octet-stream")
 
 
-@router.get("/", response_model=UploadResponse)
+@router.post("/", response_model=UploadResponse)
 async def get_file(user_id: str, id: UUID, body: FilterMetadataRequest | None = None):
     if not dbutils.does_user_id_own_file_id(user_id, id):
         raise HTTPException(403, "Forbidden")
