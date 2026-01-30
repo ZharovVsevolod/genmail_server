@@ -58,7 +58,7 @@ async def get_status(id: UUID):
     return TransriptionStatusResponse(id=id, status=status, updated_at=updated_at)
 
 
-@router.get("/", response_model=TranscriptionResponse)
+@router.post("/meta/", response_model=TranscriptionResponse)
 async def get_meta(id: UUID, body: FilterMetadataRequest | None = None):
     status = dbutils.get_transcription_task_status(id)
     if status is None:
