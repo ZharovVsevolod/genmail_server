@@ -8,7 +8,7 @@ from random import randint
 from gm_services.neural.llm import LLModelShell
 from gm_services.database.tablestore import PGHandler
 from gm_services.database.tablestore.table_schemas.user import User
-from gm_services.united_schemes import DocumentView
+from gm_services.schemas.understanding import DocumentView
 from gm_services.common import (
     generate_hex, 
     load_prompt, 

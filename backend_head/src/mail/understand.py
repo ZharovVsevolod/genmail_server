@@ -1,10 +1,10 @@
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from gm_services.united_schemes import DocumentView
+from gm_services.schemas.understanding import DocumentView
 from gm_services.common import load_prompt
 from gm_services.config import Settings
 
-from gm_services.united_schemes import ExtractedDocument
+from gm_services.schemas.extraction import ExtractedDocument
 from gm_services.neural.llm import LLModelShell
 from typing import List, Literal
 

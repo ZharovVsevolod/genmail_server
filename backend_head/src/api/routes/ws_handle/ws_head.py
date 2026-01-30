@@ -24,7 +24,7 @@ from gm_services.config import Settings
 from fastapi import WebSocket
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from .events_typing import API_MESSAGE_TYPE
-from gm_services.united_schemes import DocumentView
+from gm_services.schemas.understanding import DocumentView
 
 import logging
 logger = logging.getLogger(__name__)

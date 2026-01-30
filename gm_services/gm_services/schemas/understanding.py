@@ -1,30 +1,8 @@
-from pydantic import BaseModel
 from typing import Literal
+from pydantic import BaseModel
 
-# ------------------------
-# Mail generation scenario
-# ------------------------
-# Extraction
-
-PARSING_METHODS = Literal[
-    "ocr", "docx", "none"
-]  # none is for no parsing (of text, for example)
-
-class Page(BaseModel):
-    number: int
-    text: str
-
-class ExtractedDocument(BaseModel):
-    pages: list[Page]
-    metadata: dict = {} # source
-
-    def to_str(self) -> str:
-        result = "\n".join([page.text for page in self.pages])
-        return result
-
-
-# Understanding
 DOCUMENT_TYPE = Literal["inner", "outer"]
+
 
 class DocumentView(BaseModel):
     doc_type: DOCUMENT_TYPE
@@ -34,7 +12,7 @@ class DocumentView(BaseModel):
     author: str
     number: str
     date: str
-    metadata: dict = {} # source
+    metadata: dict = {}  # source
 
     @property
     def doc_type_rus(self):
@@ -49,16 +27,10 @@ class DocumentView(BaseModel):
             "Тема": self.theme,
             "Суммаризация": self.summary,
             "text": self.text,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
         return result
 
     def to_str(self) -> str:
         result = f"Тип: {self.doc_type_rus}\nТема: {self.theme}\nСуммаризация: {self.summary}\nАвтор: {self.author}"
         return result
-
-
-# Generation
-class BaseGenerationBody(BaseModel):
-    letter_body: str
-    history: list

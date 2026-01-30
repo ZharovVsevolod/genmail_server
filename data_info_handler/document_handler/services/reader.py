@@ -2,8 +2,7 @@ from io import BytesIO
 import docx
 
 from gm_services.config import Settings
-from gm_services.united_schemes import PARSING_METHODS
-from gm_services.united_schemes import Page
+from gm_services.schemas.extraction import PARSING_METHODS, Page
 from marker.converters.pdf import PdfConverter
 from marker.models import create_model_dict
 from marker.output import text_from_rendered
@@ -20,6 +19,14 @@ class Reader:
 
     def __init__(self):
         raise TypeError(f"{self.__class__.__name__} is non-initable")
+
+    @staticmethod
+    def detect_method(content_type: str) -> PARSING_METHODS:
+        if content_type.startswith("text/"):
+            return "none"
+        if content_type == "application/msword":
+            return "docx"
+        return "ocr"
 
     @classmethod
     def read(cls, data: bytes, method: PARSING_METHODS) -> Page | None:

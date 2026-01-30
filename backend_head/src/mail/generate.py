@@ -2,12 +2,12 @@ from pydantic import BaseModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
-from gm_services.united_schemes import BaseGenerationBody
+from gm_services.schemas.generation import BaseGenerationBody
 from gm_services.config import Settings
 
 from langchain_core.messages import BaseMessage
 from gm_services.neural.llm import LLModelShell
-from gm_services.united_schemes import DocumentView
+from gm_services.schemas.understanding import DocumentView
 from ..services.databases.vectorstore.elastic_connection import ElasticHandler
 from typing import List, Literal
 
