@@ -2,7 +2,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy import ForeignKey, DateTime
 from data_info_handler.document_handler.models.base import Base
 import uuid
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from datetime import datetime
 from sqlalchemy import func
 from uuid import uuid4
@@ -18,8 +18,8 @@ class Transcription(Base):
         ForeignKey("data.md5sum", ondelete="CASCADE"), index=True
     )
     method: Mapped[str | None]
-    content: Mapped[dict] = mapped_column(JSONB, default="{}")
-    meta: Mapped[dict] = mapped_column(JSONB, default="{}")
+    content: Mapped[dict] = mapped_column(JSON, default="{}")
+    meta: Mapped[dict] = mapped_column(JSON, default="{}")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

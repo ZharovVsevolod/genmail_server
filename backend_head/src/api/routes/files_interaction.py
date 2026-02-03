@@ -4,7 +4,10 @@ from fastapi.responses import FileResponse
 from fastapi import APIRouter, UploadFile, File
 from fastapi import APIRouter
 
-from gm_services.config import Settings
+from ...head import HEAD
+from gm_services.config import Settings, DOCUMENT_SESSION_ID_PLACEHOLDER
+
+from typing import TypedDict
 
 
 file_router = APIRouter()
@@ -21,13 +24,19 @@ async def download_file(filename: str) -> FileResponse:
     )
 
 
-@file_router.post("/upload")
-async def upload_files(files: list[UploadFile] = File(...)):
-    saved_files = []
-    for file in files:
-        file_location = Settings.docs.full_mail_path + file.filename
-        with open(file_location, "wb") as f:
-            f.write(await file.read())
-        saved_files.append(file.filename)
+class UPLOAD_FILES_RETURN(TypedDict):
+    uploaded: list[str]
 
+@file_router.post("/upload")
+async def upload_files(
+    user_id: str,
+    files: list[UploadFile] = File(...)
+) -> UPLOAD_FILES_RETURN:
+    await HEAD.files_upload(
+        files = files, 
+        user_id = user_id, 
+        session_id = DOCUMENT_SESSION_ID_PLACEHOLDER
+    )
+
+    saved_files = [file.filename for file in files]
     return {"uploaded": saved_files}

@@ -35,7 +35,7 @@ TOOL_NAMES = Literal[
 class MainToolkit:
     def __init__(self):
         self.tools = {
-            graph_search_name: graph_search_tool,
+            # graph_search_name: graph_search_tool, # Disabled because of lost of graphbase
             reference_name: reference_info_tool,
             knowledge_name: knowledge_info_tool
         }

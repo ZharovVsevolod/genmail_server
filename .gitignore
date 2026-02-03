@@ -27,3 +27,4 @@ share/python-wheels/
 .venv/
 .env
 .python-version
+.DS_Store

@@ -124,6 +124,7 @@ services:
       postgres:
         condition: service_healthy
 
+
   # ----------
   # Redis
   # ----------
@@ -139,11 +140,12 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # ----------
+
+  # ----------------
   # Document handler
-  # ----------
+  # ----------------
   document_handler:
-    container_name: document_handler
+    container_name: document_handler_c
     ports:
       - "8000:8000"
     build:

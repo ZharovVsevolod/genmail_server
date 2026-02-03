@@ -43,6 +43,6 @@ class OpenSearchConnection:
 
         self.vectorstore = OpenSearchVectorSearch(
             opensearch_url = Settings.services.vectorbase.base_url,
-            index_name = Settings.services.vectorbase.docs_index,
+            index_name = Settings.services.vectorbase.indexes.documents,
             embedding_function = embeddings
         )

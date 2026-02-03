@@ -1,25 +1,28 @@
+import asyncio
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-# from .mail.extract import 
 from .mail.understand import PromptRunner
-# from .mail.generate import 
 from .mail.formalize import DocumentFormalizer
+from gm_services.clients import DocumentHandlerClient
 from gm_services.neural.llm import LLModelShell
 from gm_services.neural.llm.tools import MainToolkit, ToolCallingRunnable
 from .db_handle.osdb_chat import OpenSearchChatHandler
 from .db_handle.history import get_session_history
 from gm_services.database.tablestore import PGHandler
 from gm_services.common import load_prompt, cut_thinking_part_of_message, unmark
+from gm_services.schemas.document_handler import TranscriptionStatusEnum
 from gm_services.config import Settings
 
 from gm_services.schemas.extraction import ExtractedDocument
+from gm_services.schemas.document_handler import TranscriptionResponse
 from gm_services.schemas.understanding import DocumentView
 from .db_handle.osdb_chat import HISTORY_MESSAGE_TYPE
 from gm_services.database.tablestore.table_schemas.user import User
 from gm_services.neural.llm.tools.tool_interface import TOOL_NAMES
 from langchain_core.messages import BaseMessage
+from fastapi import UploadFile
 from typing import Literal, Any
 
 from dotenv import load_dotenv
@@ -35,21 +38,15 @@ RUNNALE_TYPES = Literal["default", "mail"]
 class Head:
     def __init__(self):
         # LLM
-        self.model = LLModelShell(
-            llm_name = Settings.models.llm,
-            device = Settings.system.device
-        )
-        logger.info("Connection established with LLM")
+        self.model = LLModelShell(Settings.models.llm)
 
         # Databases
         self.vector_base = OpenSearchChatHandler()
         self.tablestore = PGHandler()
 
         # Inner modules
-        # TODO
-        self.extractor = Extractor()
+        self.document_handler = DocumentHandlerClient()
         self.promptrunner = PromptRunner(model = self.model)
-        self.chat = Chat(model=self.model, vector_base=self.vector_base)
         self.formalizer = DocumentFormalizer(
             model = self.model, 
             tablestore = self.tablestore
@@ -63,6 +60,7 @@ class Head:
     # --------------
     # Mirror methods
     # --------------
+    # User
     def find_user(self, user_id: str) -> User | None:
         """Return `User` if there is a match, or `None` if nothing was found"""
         return self.tablestore.find_user(user_id)
@@ -71,10 +69,13 @@ class Head:
         return self.tablestore.check_password(user_id, user_password)
 
 
+    # TODO
+    # Retrieval
     def similarity_search(self, query: str) -> str:
-
+        pass
     
-
+    
+    # Message history
     def get_message_by_id(
         self,
         session_id: str,
@@ -109,26 +110,49 @@ class Head:
         """Update parameter in history.additional_kwargs"""
         self.vector_base.update_langchain_message(message_id, parameter_name, parameter_value)
     
+
+    # Document extraction
+    def remove_document_session_id_placeholder(
+        self, 
+        user_id: str, 
+        session_id: str
+    ) -> None:
+        """
+        Replace a document session_id placeholder with valid session_id value
+        
+        **Comment**: This is needed to be done because when new documents are uploaded there is
+        no actual session_id in exist, because new session starts right after user's click,
+        and value could not be created at this point. So document firstly registrated with user_id and
+        DOCUMENT_SESSION_ID_PLACEHOLDER and then we must replace it with a real value once we got to the point
+        where it matters
+        """
+        self.vector_base.remove_document_session_id_placeholder(user_id, session_id)
+    
+
     # TODO
     # This will be another module, not self.vectorbase
-
     def add_extracted_info(self, session_id: str, extracted: DocumentView) -> None:
-        # self.vector_base.add_extracted_info(session_id, extracted)
+        self.vector_base.add_extracted_info(session_id, extracted)
+        pass
 
     
+    # TODO
     def get_extracted_info(self, session_id: str) -> DocumentView | None:
         """Get the saved DocumentView by session_id
 
         Return None if there is no matching DocumentView
         """
         # return self.vector_base.get_extracted_info(session_id)
+        pass
 
     
+    # TODO
     def delete_extracted_info(self, session_id: str) -> None:
         # self.vector_base.delete_extracted_info(session_id)
+        pass
 
     
-
+    # User's chats
     def add_chat_id(
         self, 
         user_id: str, 
@@ -166,6 +190,7 @@ class Head:
         self.vector_base.delete_chat_id(session_id)
     
 
+    # User's prompt library
     def add_prompt_library(self, user_id: str, prompt: str, name: str) -> str:
         """
         Return an id of this prompt recording in library
@@ -196,20 +221,54 @@ class Head:
     
     def update_prompt_library(self, prompt_id: str, prompt: str, name: str) -> None:
         self.vector_base.update_prompt_library(prompt_id, prompt, name)
+    
     # ----------------
     # ----------------
     # ----------------
     
+    async def files_upload(
+        self, 
+        files: list[UploadFile],
+        user_id: str,
+        session_id: str
+    ) -> None:
+        "Upload multiple files, register them to user and current session_id"
+        document_ids = []
+        for file in files:
+            # Upload file to database
+            document_info = await self.document_handler.files_upload(
+                user_id = user_id,
+                file_data = file.file,
+                content_type = file.content_type,
+                filename = file.filename
+            )
+            document_ids.append(document_info.id)
 
-    def extract_text(self, folder_path: str) -> list[ExtractedDocument]:
-        logger.info("Path where documents that need to be procced: %s", folder_path)
-        try:
-            extracted = self.extractor.extract_from_folder(folder_path)
-        except Exception as e:
-            logger.exception("Error: %s", e)
-        
-        logger.info("Extracted text: %s", extracted)
-        return extracted
+        # Connect this documents to chat
+        self.vector_base.add_docs_to_chat(
+            doc_ids = document_ids,
+            user_id = user_id,
+            session_id = session_id
+        )
+
+    
+    async def extract_text(self, user_id: str, session_id: str) -> list[ExtractedDocument]:
+        extracted_texts = []
+
+        doc_ids = self.vector_base.get_doc_ids_of_chat(session_id)
+        for doc_id in doc_ids:
+            task = await self.document_handler.create_transcribe_task(user_id, doc_id)
+
+            while True:
+                status = await self.document_handler.get_status(task.id)
+                if status.status == TranscriptionStatusEnum.SUCCESS:
+                    extracted_text: TranscriptionResponse = await self.document_handler.get_meta(task.id)
+                    extracted_texts.append(ExtractedDocument.model_validate(extracted_text.content))
+                    break
+                else:
+                    asyncio.sleep(5.0) # Wait for 5 seconds for the next ask
+
+        return extracted_texts
     
 
     def llm_get_info_from_text(self, extracted: list[ExtractedDocument]) -> list[DocumentView]:

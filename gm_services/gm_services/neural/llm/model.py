@@ -15,7 +15,6 @@ from langchain_core.runnables import RunnableConfig
 from .tools.tool_interface import TOOL_NAMES
 from ...config import (
     LLM_MODEL_TYPE,
-    DEVICE_TYPE,
     LLM_ANSWER_PARSER_TYPE
 )
 from typing import Literal
@@ -29,18 +28,12 @@ ERROR_MESSAGE = """Извините, что-то пошло не так.
 
 
 class LLModelShell:
-    def __init__(
-        self,
-        llm_name: LLM_MODEL_TYPE,
-        device: DEVICE_TYPE | None = None
-    ) -> None:
-        if device is None:
-            device = Settings.system.device
-
+    def __init__(self, llm_name: LLM_MODEL_TYPE) -> None:
         if Settings.system.server:
             self.llm = self._init_llm_model(llm_name)
         else:
             self.llm = self._init_llm_model_local(llm_name)
+        
         self.toolkit = self._init_toolkit()
     
 

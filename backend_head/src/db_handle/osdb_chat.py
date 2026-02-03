@@ -3,7 +3,7 @@ from langchain_core.messages import messages_from_dict
 
 from gm_services.database.vectorstore import OpenSearchConnection
 from gm_services.common import cut_thinking_part_of_message, generate_hex
-from gm_services.config import Settings
+from gm_services.config import Settings, DOCUMENT_SESSION_ID_PLACEHOLDER
 
 from langchain_core.messages import BaseMessage
 from typing import Any, Literal
@@ -94,7 +94,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
         while True:
             try:
                 result = self.client.search(
-                    index = Settings.services.vectorbase.history_index,
+                    index = Settings.services.vectorbase.indexes.message_history,
                     query = {"term": {"session_id": session_id}},
                     sort = "created_at:asc",
                     size = 100,
@@ -165,7 +165,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
     ) -> None:
         """Update parameter in history.additional_kwargs"""
         self.client.update(
-            index = Settings.services.vectorbase.history_index,
+            index = Settings.services.vectorbase.indexes.message_history,
             id = message_id,
             doc = {parameter_name: parameter_value}
         )
@@ -186,7 +186,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
         }
 
         self.client.create(
-            index = Settings.services.vectorbase.user_chats,
+            index = Settings.services.vectorbase.indexes.chats,
             id = session_id,
             document = recording
         )
@@ -198,7 +198,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
         session_name: str
     ) -> None:
         self.client.update(
-            index = Settings.services.vectorbase.user_chats,
+            index = Settings.services.vectorbase.indexes.chats,
             id = session_id,
             doc = {
                 "session_name": session_name
@@ -225,7 +225,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
         try:
             # Find 100 records of saved session_id for current user_id
             result = self.client.search(
-                index = Settings.services.vectorbase.user_chats,
+                index = Settings.services.vectorbase.indexes.chats,
                 query = {"term": {"user_id": user_id}},
                 size = 100
             )
@@ -251,7 +251,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
     def delete_chat_id(self, session_id: str) -> None:
         try:
             self.client.delete(
-                index = Settings.services.vectorbase.user_chats,
+                index = Settings.services.vectorbase.indexes.chats,
                 id = session_id
             )
         except:
@@ -274,7 +274,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
         }
 
         self.client.create(
-            index = Settings.services.vectorbase.prompt_library,
+            index = Settings.services.vectorbase.indexes.prompt_library,
             id = prompt_id,
             document = recording
         )
@@ -302,7 +302,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
         try:
             # Find 100 records of saved prompts for current user_id
             result = self.client.search(
-                index = Settings.services.vectorbase.prompt_library,
+                index = Settings.services.vectorbase.indexes.prompt_library,
                 query = {"term": {"user_id": user_id}},
                 size = 100
             )
@@ -330,7 +330,7 @@ class OpenSearchChatHandler(OpenSearchConnection):
     def delete_prompt_library(self, prompt_id: str) -> None:
         try:
             self.client.delete(
-                index = Settings.services.vectorbase.prompt_library,
+                index = Settings.services.vectorbase.indexes.prompt_library,
                 id = prompt_id
             )
         except:
@@ -342,10 +342,99 @@ class OpenSearchChatHandler(OpenSearchConnection):
     
     def update_prompt_library(self, prompt_id: str, prompt: str, name: str) -> None:
         self.client.update(
-            index = Settings.services.vectorbase.prompt_library,
+            index = Settings.services.vectorbase.indexes.prompt_library,
             id = prompt_id,
             doc = {
                 "name": name,
                 "prompt": prompt
             }
         )
+
+
+    # ----------------------------------
+    # Connect uploaded documents to chat
+    # ----------------------------------
+    def add_docs_to_chat(
+        self, 
+        doc_ids: list[str], 
+        user_id: str, 
+        session_id: str
+    ) -> None:
+        """
+        Connect document's ids to current session_id (chat)
+        """
+        for doc_id in doc_ids:
+            recording = {
+                "session_id": session_id,
+                "user_id": user_id,
+                "document_id": doc_id
+            }
+
+            self.client.create(
+                index = Settings.services.vectorbase.indexes.context,
+                id = generate_hex(16),
+                document = recording
+            )
+
+
+    def get_doc_ids_of_chat(self, session_id: str) -> list[str]:
+        """Get all ids of documents connected to provided session_id"""
+        try:
+            result = self.client.search(
+                index = Settings.services.vectorbase.indexes.context,
+                query = {"term": {"session_id": session_id}},
+                size = 100
+            )
+        except Exception as err:
+            logger.info("Could not find any connected documents for session_id = %s", session_id)
+            logger.info(err)
+            return []
+        
+        if result and len(result["hits"]["hits"]) > 0:
+            result = result["hits"]["hits"]
+
+            doc_ids = []
+            for record in result:
+                doc_ids.append(record["_source"]["document_id"])
+                
+            return doc_ids
+
+        return []
+    
+
+    def remove_document_session_id_placeholder(
+        self, 
+        user_id: str, 
+        session_id: str
+    ) -> None:
+        """
+        Replace a document session_id placeholder with a valid session_id value
+        
+        **Comment**: This is needed to be done because when new documents are uploaded there is
+        no actual session_id in exist, because new session starts right after user's click,
+        and value could not be created at this point. So document firstly registrated with user_id and
+        DOCUMENT_SESSION_ID_PLACEHOLDER and then we must replace it with a real value once we got to the point
+        where it matters
+        """
+        try:
+            result = self.client.search(
+                index = Settings.services.vectorbase.indexes.context,
+                query = {"term": {
+                    "user_id": user_id, 
+                    "session_id": DOCUMENT_SESSION_ID_PLACEHOLDER
+                }},
+                size = 100
+            )
+        except:
+            pass
+
+        if result and len(result["hits"]["hits"]) > 0:
+            result = result["hits"]["hits"]
+            for record in result:
+                self.client.update(
+                    index = Settings.services.vectorbase.indexes.context,
+                    id = record["_id"],
+                    doc = {
+                        "session_id": session_id,
+                    }
+                )

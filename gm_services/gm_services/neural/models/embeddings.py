@@ -10,8 +10,8 @@ class EmbeddingsCall(Embeddings):
     def __init__(self, model_name: EMBEDDINGS_MODEL_TYPE) -> None:
         self.model_name = model_name
 
-        self.host = ...
-        self.port = ...
+        self.host = Settings.api.embeddings_model.host
+        self.port = Settings.api.embeddings_model.port
         self.address = f"http://{self.host}:{self.port}"
 
 

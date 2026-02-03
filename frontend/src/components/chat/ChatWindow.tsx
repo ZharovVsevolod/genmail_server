@@ -36,7 +36,7 @@ const ChatWindow: React.FC = () => {
         sendAuthMessage,
         sendCreateNewChatMessage,
         sendLoadPreviousChatMessage
-    } = useSendWSMessage(ws, setResponses, BASE_URL);
+    } = useSendWSMessage(ws, setResponses, BASE_URL, userId, currentSessionId);
 
     // For shared input block between InputForm and TextHighligher
     const [inputOfUser, setInputOfUser] = useState("");

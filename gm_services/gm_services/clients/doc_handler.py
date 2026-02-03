@@ -1,13 +1,16 @@
-import gm_services.schemas.document_handler as schemas
 import httpx
-import os
+
+import gm_services.schemas.document_handler as schemas
+from gm_services.config import Settings
+
 from uuid import UUID
 
 
 class DocumentHandlerClient:
     def __init__(self) -> None:
-        URL = os.environ["DOCUMENT_HANDLER_URL"]
-        self.client = httpx.AsyncClient(base_url=URL)
+        self.client = httpx.AsyncClient(
+            base_url = Settings.services.document_handler.base_url
+        )
 
     async def files_upload(
         self, user_id: str, file_data: bytes, content_type: str, filename: str

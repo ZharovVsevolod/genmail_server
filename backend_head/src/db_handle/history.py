@@ -52,7 +52,7 @@ def get_session_history(session_id) -> OpenSearchChatMessageHistoryWithParameter
     # Actual MessageHistory class
     history = OpenSearchChatMessageHistoryWithParameters(
         es_connection = client.client,
-        index = Settings.services.vectorbase.history_index, 
+        index = Settings.services.vectorbase.indexes.message_history, 
         session_id = session_id,
         esnsure_ascii = False
     )

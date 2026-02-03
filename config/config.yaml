@@ -9,22 +9,27 @@ system:
 
 services:
   vectorbase:
-    base_url: "https://localhost:9200" # For server: localhost -> es01
-    certs_path: "./data/certs/ca.crt"
-    history_index: email-history
-    docs_index: langchain-index
-    documentview_index: doc-view
-    user_chats: user-chats
-    prompt_library: prompt-library
+    base_url: https://localhost:9200 # For server: localhost -> es01
+    certs_path: ./data/certs/ca.crt
+    indexes:
+      message_history: message-history
+      documents: docs-for-retriever
+      document_info: doc-view
+      chats: user-chats
+      prompt_library: prompt-library
+      context: saved-to-context
   
   graphbase:
-    base_url: "bolt://localhost:7687" # For server: localhost -> neo4j
+    base_url: bolt://localhost:7687 # For server: localhost -> neo4j
   
   llm_engine:
-    base_url: "http://vllm_c:8000/v1" # For server: localhost -> vllm_c
+    base_url: http://vllm_c:8000/v1 # For server: localhost -> vllm_c
   
   tablebase:
-    base_url: "localhost" # For server: localhost -> postgres
+    base_url: localhost # For server: localhost -> postgres
+  
+  document_handler:
+    base_url: http://localhost:${api.document_handler.port} # For server: localhost -> document_handler_c
 
 
 docs:
@@ -43,8 +48,17 @@ models:
 
 
 api:
-  port: ${oc.env:VITE_BACKEND_PORT}
-  host: "0.0.0.0"
+  main_back:
+    port: ${oc.env:VITE_BACKEND_PORT}
+    host: "0.0.0.0"
+  
+  document_handler:
+    port: 8002
+    host: "0.0.0.0"
+  
+  embeddings_model:
+    port: 8003
+    host: "0.0.0.0"
 
 
 web:

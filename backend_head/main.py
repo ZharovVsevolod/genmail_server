@@ -10,6 +10,6 @@ from gm_services.config import Settings
 if __name__ == "__main__":
     uvicorn.run(
         app = app, 
-        host = Settings.api.host, 
-        port = Settings.api.port
+        host = Settings.api.main_back.host, 
+        port = Settings.api.main_back.port
     )

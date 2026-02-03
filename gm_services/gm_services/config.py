@@ -31,6 +31,8 @@ EMBEDDINGS_MODEL_TYPE = Literal["FRIDA", "e5-large"]
 DEVICE_TYPE = Literal["cpu", "cuda", "mps"]
 LLM_ANSWER_PARSER_TYPE = Literal["none", "json", "string"]
 
+DOCUMENT_SESSION_ID_PLACEHOLDER = "NEW_DOCUMENT"
+
 
 # Get the path to the yaml config file
 pwd = getcwd()
@@ -67,13 +69,17 @@ class BaseService(BaseModel):
     base_url: str
 
 
+class AllIndexes(BaseModel):
+    message_history: str
+    documents: str
+    document_info: str
+    chats: str
+    prompt_library: str
+    context: str
+
 class Vectorbase(BaseService):
     certs_path: str
-    history_index: str
-    docs_index: str
-    documentview_index: str
-    user_chats: str
-    prompt_library: str
+    indexes: AllIndexes
 
 
 class Graphbase(BaseService):
@@ -88,11 +94,16 @@ class Tablebase(BaseService):
     pass
 
 
+class ServiceOfDocuments(BaseService):
+    pass
+
+
 class Services(BaseModel):
     vectorbase: Vectorbase
     graphbase: Graphbase
     llm_engine: LLmEngine
     tablebase: Tablebase
+    document_handler: ServiceOfDocuments
 
 
 class Models(BaseModel):
@@ -113,6 +124,12 @@ class SomeApiSettings(BaseModel):
     host: str
 
 
+class ListOfApi(SomeApiSettings):
+    main_back: SomeApiSettings
+    document_handler: SomeApiSettings
+    embeddings_model: SomeApiSettings
+
+
 class Web(BaseModel):
     run_name: str
 
@@ -122,7 +139,7 @@ class Config(BaseModel):
     services: Services
     docs: Docs
     models: Models
-    api: SomeApiSettings
+    api: ListOfApi
     web: Web
 
 

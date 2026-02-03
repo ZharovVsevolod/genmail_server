@@ -7,6 +7,6 @@ from gm_services.config import Settings
 if __name__ == "__main__":
     uvicorn.run(
         app = app, 
-        host = ..., 
-        port = ...
+        host = Settings.api.embeddings_model.host, 
+        port = Settings.api.embeddings_model.port
     )

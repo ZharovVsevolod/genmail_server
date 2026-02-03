@@ -4,7 +4,9 @@ import { ChatMessage, WSOutgoingMessage, RatingType } from "../common/types";
 const useSendWSMessage = (
     ws: React.RefObject<WebSocket | null>,
     setResponses: React.Dispatch<React.SetStateAction<ChatMessage[]>>,
-    backend_url: string
+    backend_url: string,
+    user_id: string,
+    session_id: string
 ) => {
     // Base message sending
     const baseSendMessage = (msg: WSOutgoingMessage) => {
@@ -65,6 +67,7 @@ const useSendWSMessage = (
             const formData = new FormData();
 
             for (const file of files) {
+                formData.append("user_id", user_id);
                 formData.append("files", file);
             }
 

@@ -74,7 +74,7 @@ class WSHead:
         return new_run_id
     
 
-    async def _make_summary(self, folder_path: str) -> None:
+    async def _make_summary(self) -> None:
         """
         Make a summary of documents (get a path to folder) 
             and send messages to front of how it is going
@@ -87,7 +87,7 @@ class WSHead:
             "run_id": summary_run_id
         })
         # Actually start extraction
-        extracted_text = HEAD.extract_text(folder_path)
+        extracted_text = await HEAD.extract_text(self.user_id, self.session_id)
 
         # Send that document summarization process started
         await self.websocket.send_json({
@@ -385,7 +385,6 @@ class WSHead:
 
         self.config = make_config_for_chain(
             session_id = self.session_id,
-            graphbase = HEAD.graph_base,
             vectorbase = HEAD.vector_base
         )
     
@@ -431,7 +430,12 @@ class WSHead:
                 # If self.session_id is None - there is no active conversation
                 if self.session_id is None:
                     self.create_conversation()
-                await self._make_summary(Settings.docs.full_mail_path)
+                # Replace session_id placeholder of new uploaded documents with a real value
+                HEAD.remove_document_session_id_placeholder(
+                    user_id = self.user_id,
+                    session_id = self.session_id
+                )
+                await self._make_summary()
 
             case "QUERY":
                 # If self.session_id is None - there is no active conversation
