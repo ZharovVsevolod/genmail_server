@@ -1,27 +1,34 @@
-# TODO(diduk001): не уверен в этом докерфайле, у меня не запускается по причине:
-# ```
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim
 
-# ```
-FROM python:3.10-alpine
+RUN apt-get update && apt-get -y upgrade
 
+# Set working directory
 WORKDIR /app
 
-RUN pip install --no-cache-dir uv
 
-# Copy project files
-RUN mkdir data_info_handler
-COPY data_info_handler/document_handler/pyproject.toml .
+# Copy files for enviroment
 COPY data_info_handler/document_handler/uv.lock .
-COPY data_info_handler/document_handler /app/data_info_handler/document_handler
-COPY gm_services /app/gm_services
+COPY data_info_handler/document_handler/pyproject.toml .
 
-# Create venv andinstall gm_services
-ENV VIRTUAL_ENV=.venv
+# Build enviroment
+RUN uv sync
 
-RUN ["uv", "pip", "install", "/app/gm_services"]
 
-# Expose port
-EXPOSE 8000
+# Build utils from gm_services
+COPY gm_services/ .
+RUN up pip install ./gm_services
 
-# Run the application
-CMD ["uv", "run", "--active", "--frozen", "--no-cache", "data_info_handler/document_handler/main.py"]
+
+# Copy the remainings
+COPY data_info_handler/document_handler/models/ .
+COPY data_info_handler/document_handler/routes/ .
+COPY data_info_handler/document_handler/services/ .
+COPY backend_head/app.py .
+COPY backend_head/main.py .
+COPY .env .
+
+
+EXPOSE 8002
+
+# Run server
+CMD ["uv", "run", "main.py"]
