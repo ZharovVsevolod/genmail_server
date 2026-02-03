@@ -20,7 +20,8 @@ RUN up pip install ./gm_services
 
 
 # Copy the remainings
-COPY backend_head/src/ .
+RUN mkdir backend_head
+COPY backend_head/src/ ./backend_head/
 COPY backend_head/main.py .
 COPY .env .
 
