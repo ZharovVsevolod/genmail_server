@@ -164,10 +164,12 @@ class OpenSearchChatHandler(OpenSearchConnection):
         parameter_value: Any
     ) -> None:
         """Update parameter in history.additional_kwargs"""
-        self.client.update(
-            index = Settings.services.vectorbase.indexes.message_history,
-            id = message_id,
-            doc = {parameter_name: parameter_value}
+        self.update_document(
+            index_name = Settings.services.vectorbase.indexes.message_history,
+            doc_id = message_id,
+            doc_body = {
+                parameter_name: parameter_value
+            } 
         )
     
 

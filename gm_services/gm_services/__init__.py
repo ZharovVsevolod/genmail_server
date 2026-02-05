@@ -5,3 +5,5 @@ from . import schemas
 from . import neural
 from . import database
 from . import clients
+
+from . import loader

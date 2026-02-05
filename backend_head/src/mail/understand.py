@@ -41,7 +41,7 @@ class PromptRunner:
         return system_prompt
     
 
-    def text_analize(
+    def text_analyze(
         self,
         system_prompt: str,
         contexts: List[ExtractedDocument]
@@ -49,11 +49,11 @@ class PromptRunner:
         required_keys = ["doc_type", "theme", "summary", "author", "number", "date"]
         default_values = {
             "doc_type": "inner",
-            "theme": "unknown", 
-            "summary": "No summary available",
-            "author": "There is no author",
-            "number": "There is no number",
-            "date": "There is no date"
+            "theme": "Общая тема документа не выявлена", 
+            "summary": "Кратное изложение документа не сделано",
+            "author": "Автор документа не найден",
+            "number": "Номер документа не найден",
+            "date": "Дата документа не найдена"
         }
 
         context_data = "\n\n".join([doc.to_str() for doc in contexts])
@@ -121,7 +121,7 @@ class PromptRunner:
 
         match task:
             case "TextAnalyze":
-                result = self.text_analize(
+                result = self.text_analyze(
                     system_prompt = system_prompt,
                     contexts = document_context
                 )

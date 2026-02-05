@@ -1,11 +1,12 @@
 import os
+from pathlib import Path
 from pydantic import BaseModel
 from langchain_core.documents import Document
 
 from .splitter_logic import load_and_split_file
 
 
-SUPPORTED_EXTENSIONS = ["txt"]
+SUPPORTED_EXTENSIONS = ["txt", "md"]
 
 
 class FileEntity(BaseModel):
@@ -39,10 +40,12 @@ def load_data_for_vectorstore_from_folder(
         doc_path = path_to_dir + doc.name
 
         match doc.extension:
-            case "txt":
+            case "txt" | "md":
                 if need_splitter:
                     data = load_and_split_file(
-                        path_to_file=doc_path, source_name=source, **kwargs
+                        path_to_file = doc_path, 
+                        source_name = source, 
+                        **kwargs
                     )
                 else:
                     with open(doc_path, mode="r", encoding="utf-8") as file:
@@ -60,7 +63,10 @@ def load_data_for_vectorstore_from_folder(
     else:
         # Transfer pure text to Langchain Document
         documents: list[Document] = [
-            Document(page_content=text, metadata={"source": source}) for text in texts
+            Document(
+                page_content = text, 
+                metadata = {"source": source, "docname": source}
+            ) for text in texts
         ]
 
     return documents

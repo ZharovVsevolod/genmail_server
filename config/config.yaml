@@ -31,6 +31,8 @@ services:
   document_handler:
     base_url: http://localhost:${api.document_handler.port} # For server: localhost -> document_handler_c
 
+  retriever:
+    base_url: http://localhost:${api.retriever.port} # For server: localhost -> retriever_c
 
 docs:
   main_dir: data/
@@ -58,6 +60,10 @@ api:
   
   embeddings_model:
     port: 8003
+    host: "0.0.0.0"
+  
+  retriever:
+    port: 8004
     host: "0.0.0.0"
 
 

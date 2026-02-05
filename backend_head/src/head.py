@@ -5,7 +5,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from .mail.understand import PromptRunner
 from .mail.formalize import DocumentFormalizer
-from gm_services.clients import DocumentHandlerClient
+from gm_services.clients import DocumentHandlerClient, RetrieverClient
 from gm_services.neural.llm import LLModelShell
 from gm_services.neural.llm.tools import MainToolkit, ToolCallingRunnable
 from .db_handle.osdb_chat import OpenSearchChatHandler
@@ -46,6 +46,7 @@ class Head:
 
         # Inner modules
         self.document_handler = DocumentHandlerClient()
+        self.retriever = RetrieverClient()
         self.promptrunner = PromptRunner(model = self.model)
         self.formalizer = DocumentFormalizer(
             model = self.model, 
@@ -67,13 +68,6 @@ class Head:
     
     def check_password(self, user_id: str, user_password: str) -> bool:
         return self.tablestore.check_password(user_id, user_password)
-
-
-    # TODO
-    # Retrieval
-    def similarity_search(self, query: str) -> str:
-        pass
-    
     
     # Message history
     def get_message_by_id(
@@ -110,7 +104,6 @@ class Head:
         """Update parameter in history.additional_kwargs"""
         self.vector_base.update_langchain_message(message_id, parameter_name, parameter_value)
     
-
     # Document extraction
     def remove_document_session_id_placeholder(
         self, 
@@ -128,30 +121,20 @@ class Head:
         """
         self.vector_base.remove_document_session_id_placeholder(user_id, session_id)
     
-
-    # TODO
-    # This will be another module, not self.vectorbase
     def add_extracted_info(self, session_id: str, extracted: DocumentView) -> None:
         self.vector_base.add_extracted_info(session_id, extracted)
         pass
 
-    
-    # TODO
     def get_extracted_info(self, session_id: str) -> DocumentView | None:
         """Get the saved DocumentView by session_id
 
         Return None if there is no matching DocumentView
         """
-        # return self.vector_base.get_extracted_info(session_id)
-        pass
+        return self.vector_base.get_extracted_info(session_id)
 
-    
-    # TODO
     def delete_extracted_info(self, session_id: str) -> None:
-        # self.vector_base.delete_extracted_info(session_id)
-        pass
+        self.vector_base.delete_extracted_info(session_id)
 
-    
     # User's chats
     def add_chat_id(
         self, 
@@ -189,7 +172,6 @@ class Head:
     def delete_chat_id(self, session_id: str) -> None:
         self.vector_base.delete_chat_id(session_id)
     
-
     # User's prompt library
     def add_prompt_library(self, user_id: str, prompt: str, name: str) -> str:
         """

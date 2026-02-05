@@ -19,7 +19,7 @@ class KnowledgeInput(BaseModel):
 
 def get_knowledge(query: str, config: RunnableConfig) -> str:
     """Execute the user's query"""
-    some_knowledge = config["configurable"]["vectorbase"].similarity_search(
+    some_knowledge = config["configurable"]["retriever"].similarity_search(
         query = query, 
         return_format = "str",
         filter_type = "source",

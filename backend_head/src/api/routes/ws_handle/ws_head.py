@@ -385,7 +385,8 @@ class WSHead:
 
         self.config = make_config_for_chain(
             session_id = self.session_id,
-            vectorbase = HEAD.vector_base
+            vectorbase = HEAD.vector_base,
+            retriever = HEAD.retriever
         )
     
 

@@ -19,7 +19,7 @@ class ReferenceInput(BaseModel):
 
 def get_reference(query: str, config: RunnableConfig) -> str:
     """Execute the user's query"""
-    some_reference = config["configurable"]["vectorbase"].similarity_search(
+    some_reference = config["configurable"]["retriever"].similarity_search(
         query = query, 
         return_format = "str",
         filter_type = "source",

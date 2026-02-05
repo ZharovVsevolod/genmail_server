@@ -1,6 +1,6 @@
 import re
 from uuid import uuid4
-
+from pathlib import Path
 from langchain_text_splitters import (
     CharacterTextSplitter,
     RecursiveCharacterTextSplitter,
@@ -8,7 +8,7 @@ from langchain_text_splitters import (
 
 from langchain_core.documents import Document
 from langchain_text_splitters.base import TextSplitter
-from typing import Literal, Union, Optional
+from typing import Literal
 
 
 def preprocess_re(text: str) -> str:
@@ -28,11 +28,11 @@ def get_standard_splitter(separator: str = "\n\n") -> CharacterTextSplitter:
     (for documents with prepared structure)
     """
     text_splitter = CharacterTextSplitter(
-        separator=separator,
-        chunk_size=100,
-        chunk_overlap=0,
-        length_function=len,
-        is_separator_regex=False,
+        separator = separator,
+        chunk_size = 100,
+        chunk_overlap = 0,
+        length_function = len,
+        is_separator_regex = False,
     )
 
     return text_splitter
@@ -45,10 +45,10 @@ def get_recursive_splitter(
     (for documents with non-prepared structure)
     """
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        length_function=len,
-        is_separator_regex=False,
+        chunk_size = chunk_size,
+        chunk_overlap = chunk_overlap,
+        length_function = len,
+        is_separator_regex = False,
     )
 
     return text_splitter
@@ -56,10 +56,8 @@ def get_recursive_splitter(
 
 def load_and_split_file(
     path_to_file: str,
-    source_name: str,
-    splitter_type: Optional[
-        Union[Literal["standard", "recursive"], TextSplitter]
-    ] = None,
+    source_name: str | None = None,
+    splitter_type: Literal["standard", "recursive"] | TextSplitter | None = None,
     need_to_cut_out_questions: bool = False,
 ) -> list[Document]:
     """Load document and cut to text chunks
@@ -70,7 +68,8 @@ def load_and_split_file(
         Path to document that needed to be splitted to chunks
 
     source_name: str
-        Name of the document - for metadata
+        Name of the document - for metadata.  
+        If not specified, by default it is a file name
 
     splitter_type: Literal["standard", "recursive"] | TextSplitter | None
         Splitter type or splitter itself.\n
@@ -83,9 +82,14 @@ def load_and_split_file(
     need_to_cut_out_questions: bool = False
         If need to cut some questions in text (for textbooks manually).
     """
+    # Fill None values
+    if source_name is None:
+        source_name = Path(path_to_file).stem
+
     if splitter_type is None:
         splitter_type = "recursive"
 
+    # Get the splitter
     match splitter_type:
         case "recursive":
             splitter = get_recursive_splitter()
@@ -96,6 +100,7 @@ def load_and_split_file(
         case _:
             splitter = splitter_type
 
+    # Document process
     with open(path_to_file, encoding="utf8") as f:
         document_original = f.read()
 
@@ -103,7 +108,11 @@ def load_and_split_file(
         document_original = preprocess_re(document_original)
 
     document_split = splitter.create_documents(
-        texts=[document_original], metadatas=[{"source": source_name}]
+        texts = [document_original], 
+        metadatas = [{
+            "source": source_name, 
+            "docname": Path(path_to_file).stem
+        }]
     )
 
     for doc in document_split:

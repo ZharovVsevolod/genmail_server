@@ -97,6 +97,9 @@ class Tablebase(BaseService):
 class ServiceOfDocuments(BaseService):
     pass
 
+class RetrieverService(BaseService):
+    pass
+
 
 class Services(BaseModel):
     vectorbase: Vectorbase
@@ -104,6 +107,7 @@ class Services(BaseModel):
     llm_engine: LLmEngine
     tablebase: Tablebase
     document_handler: ServiceOfDocuments
+    retriever: RetrieverService
 
 
 class Models(BaseModel):
@@ -128,6 +132,7 @@ class ListOfApi(SomeApiSettings):
     main_back: SomeApiSettings
     document_handler: SomeApiSettings
     embeddings_model: SomeApiSettings
+    retriever: SomeApiSettings
 
 
 class Web(BaseModel):
