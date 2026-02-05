@@ -24,6 +24,7 @@ RUN mkdir backend_head
 COPY backend_head/src/ ./backend_head/
 COPY backend_head/main.py .
 COPY .env .
+COPY data/ ./data/
 
 
 EXPOSE 1702
