@@ -1,6 +1,7 @@
 import base64
 import logging
 import os
+import re
 from pathlib import Path
 
 from openai import OpenAI
@@ -9,6 +10,11 @@ try:
     from PyPDF2 import PdfReader
 except Exception:
     PdfReader = None
+
+try:
+    import fitz  # PyMuPDF
+except Exception:
+    fitz = None
 
 logger = logging.getLogger(__name__)
 
@@ -84,34 +90,60 @@ class OCRHandler:
                 "top_k": top_k,
                 "repetition_penalty": repetition_penalty
             }
-        )
-        return response.choices[0].message.content
+        ),
+        text = re.sub(r"\(\d+,\d+\),\(\d+,\d+\)", "\n", response.choices[0].message.content)
+        return 
 
     def _read_text_file(self, file_path: str) -> str:
         with open(file_path, "r", encoding="utf-8", errors="replace") as file:
             return file.read()
 
-    def _read_pdf_text(self, file_path: str) -> str:
-        if PdfReader is None:
-            raise RuntimeError("PyPDF2 is not installed")
-        
-        reader = PdfReader(file_path)
+    def _pdf_to_images(self, pdf_path: str, dpi: int = 200) -> list[Path]:
+        if fitz is None:
+            raise RuntimeError("PyMuPDF (fitz) is not installed")
+
+        doc = fitz.open(pdf_path)
+        images: list[Path] = []
+        pdf_dir = Path(pdf_path).parent
+        stem = Path(pdf_path).stem
+
+        for i, page in enumerate(doc):
+            pix = page.get_pixmap(dpi=dpi)
+            img_path = pdf_dir / f"{stem}_page_{i + 1}.png"
+            pix.save(img_path.as_posix())
+            images.append(img_path)
+
+        return images
+
+    def _read_pdf_text(self, file_path: str, prompt: str | None) -> str:
+        # 1) Попробовать вытащить текст обычным способом
+        raw_text = ""
+        if PdfReader is not None:
+            reader = PdfReader(file_path)
+            for page in reader.pages:
+                page_text = page.extract_text() or ""
+                if page_text:
+                    raw_text += page_text + "\n"
+
+        if raw_text.strip():
+            return raw_text.strip()
+
+        # 2) Если текст не извлекся — fallback на OCR по страницам
         pages_text: list[str] = []
-        for page in reader.pages:
-            page_text = page.extract_text() or ""
-            if page_text:
-                pages_text.append(page_text)
-        return "\n".join(pages_text)
+        for img_path in self._pdf_to_images(file_path):
+            page_text = self.ocr_image(str(img_path), prompt=prompt)
+            pages_text.append(page_text)
+
+        return "\n\n".join(pages_text)
 
     def _process_file(self, file_path: str, prompt: str | None) -> dict[str, str | None]:
         path = Path(file_path)
         extension = path.suffix.lower()
-
         try:
             if extension in TEXT_EXTENSIONS:
                 text = self._read_text_file(file_path)
             elif extension in PDF_EXTENSIONS:
-                text = self._read_pdf_text(file_path)
+                text = self._read_pdf_text(file_path, prompt=prompt)
             elif extension in IMAGE_EXTENSIONS:
                 text = self.ocr_image(file_path, prompt=prompt)
             else:

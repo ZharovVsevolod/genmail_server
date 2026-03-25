@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  hunyuan-ocr-vllm:
+    image: vllm/vllm-openai:latest
+    container_name: hunyuan-ocr-vllm
+    command:
+      - "--model"
+      - "tencent/HunyuanOCR"
+      - "--no-enable-prefix-caching"
+      - "--mm-processor-cache-gb"
+      - "0"
+      - "--gpu-memory-utilization"
+      - "0.2"
+    ports:
+      - "8000:8000"
+    environment:
+      - VLLM_WORKER_CONCURRENCY=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              device_ids: ["1"]
+  ocr-service:
+    build:
+      context: ..
+      dockerfile: model_engine/ml_models/ocr/Dockerfile
+    container_name: genmail-ocr
+    # env_file:
+    #   - ../.env
+    environment:
+      - OCR_BASE_URL=http://hunyuan-ocr-vllm:8000/v1
+      - OCR_MODEL_NAME=tencent/HunyuanOCR
+    depends_on:
+      - hunyuan-ocr-vllm
+    ports:
+      - "8004:8004"
+

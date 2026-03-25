@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from .ocr import OCRHandler
+from ocr import OCRHandler
 
 logger = logging.getLogger(__name__)
 
