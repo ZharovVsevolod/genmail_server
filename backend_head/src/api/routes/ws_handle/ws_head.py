@@ -441,7 +441,7 @@ class WSHead:
             case "QUERY":
                 # If self.session_id is None - there is no active conversation
                 if self.session_id is None:
-                    self.create_conversation()
+                    await self.create_conversation()
                 self._set_runnable_chain()
                 message = data["message"]
                 await self._run_generation(message)

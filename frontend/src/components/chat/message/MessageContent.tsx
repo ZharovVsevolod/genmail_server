@@ -11,12 +11,12 @@ const MessageContent: React.FC<MessageContentProps> = ({ sender, message }) => {
         <>
             <div className="message-header">
                 <strong>{sender}</strong>
-                <span className="message-time">
+                {/* <span className="message-time">
                     {new Date().toLocaleTimeString("ru-RU", {
                         hour: "2-digit",
                         minute: "2-digit",
                     })}
-                </span>
+                </span> */}
             </div>
 
             <ReactMarkdown>{message}</ReactMarkdown>

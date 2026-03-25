@@ -90,6 +90,7 @@ class DocumentFormalizer:
         full_dative_name = dative_form.get("name", "")
         full_dative_name += " " + dative_form.get("surname", "")
         full_dative_name += " " + dative_form.get("patronymic", "")
+        document_info.metadata["author_dative"] = full_dative_name
         document_info.metadata["author_position_dative"] = dative_form["position"]
         document_info.metadata["author_organization_genitive"] = dative_form["organization"]
 

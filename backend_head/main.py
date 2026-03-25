@@ -13,3 +13,4 @@ if __name__ == "__main__":
         host = Settings.api.main_back.host, 
         port = Settings.api.main_back.port
     )
+
