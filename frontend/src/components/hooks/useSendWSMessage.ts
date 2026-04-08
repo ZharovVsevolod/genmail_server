@@ -66,8 +66,10 @@ const useSendWSMessage = (
 
             const formData = new FormData();
 
+            formData.append("user_id", user_id);
+            // formData.append("session_id", session_id);
+
             for (const file of files) {
-                formData.append("user_id", user_id);
                 formData.append("files", file);
             }
 
