@@ -77,7 +77,7 @@ class OCRHandler:
     ) -> str:
         if prompt is None:
             prompt = DEFAULT_OCR_PROMPT
-
+        # import ipdb;ipdb.set_trace()
         messages = self._create_messages(image_path, prompt)
         response = self.client.chat.completions.create(
             model = self.model_name,
@@ -91,8 +91,8 @@ class OCRHandler:
                 "repetition_penalty": repetition_penalty
             }
         ),
-        text = re.sub(r"\(\d+,\d+\),\(\d+,\d+\)", "\n", response.choices[0].message.content)
-        return 
+        text = re.sub(r"\(\d+,\d+\),\(\d+,\d+\)", "\n", response[0].choices[0].message.content)
+        return text
 
     def _read_text_file(self, file_path: str) -> str:
         with open(file_path, "r", encoding="utf-8", errors="replace") as file:
